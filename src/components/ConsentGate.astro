@@ -7,9 +7,11 @@ interface Props {
 
 const { config } = Astro.props;
 
+const trackers = Array.isArray(config.tracker) ? config.tracker : [config.tracker];
+
 // <-escaping keeps "</script>" inside attribute values from closing the JSON block.
 const payload = JSON.stringify({
-  attrs: config.tracker.scriptAttributes,
+  attrs: trackers.map((t) => t.scriptAttributes),
   version: config.consentVersion ?? 1,
 }).replace(/</g, '\\u003c');
 ---

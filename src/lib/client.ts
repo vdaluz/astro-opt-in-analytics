@@ -4,7 +4,7 @@ import type { ConsentDecision } from './types';
 type ConsentState = 'gpc' | 'granted' | 'denied' | 'undecided';
 
 interface GateConfig {
-  attrs: Record<string, string> & { src: string };
+  attrs: Array<Record<string, string> & { src: string }>;
   version: number;
 }
 
@@ -34,15 +34,18 @@ function readGateConfig(): GateConfig | null {
   }
 }
 
-function injectTracker(attrs: GateConfig['attrs']): void {
-  if (document.getElementById(TRACKER_ELEMENT_ID)) return;
-  const script = document.createElement('script');
-  script.id = TRACKER_ELEMENT_ID;
-  for (const [name, value] of Object.entries(attrs)) {
-    if (name === 'src') script.src = value;
-    else script.setAttribute(name, value);
-  }
-  document.head.appendChild(script);
+function injectTrackers(attrs: GateConfig['attrs']): void {
+  attrs.forEach((trackerAttrs, index) => {
+    const id = `${TRACKER_ELEMENT_ID}-${index}`;
+    if (document.getElementById(id)) return;
+    const script = document.createElement('script');
+    script.id = id;
+    for (const [name, value] of Object.entries(trackerAttrs)) {
+      if (name === 'src') script.src = value;
+      else script.setAttribute(name, value);
+    }
+    document.head.appendChild(script);
+  });
 }
 
 /**
@@ -62,14 +65,14 @@ export function bootConsentGate(): void {
 
   const stored = readConsent(localStorage, config.version);
   setState(stored ?? 'undecided');
-  if (stored === 'granted') injectTracker(config.attrs);
+  if (stored === 'granted') injectTrackers(config.attrs);
 
   document.addEventListener(CHOOSE_EVENT, (event) => {
     const decision = (event as CustomEvent<ConsentDecision>).detail;
     if (decision !== 'granted' && decision !== 'denied') return;
     writeConsent(localStorage, config.version, decision, new Date().toISOString());
     setState(decision);
-    if (decision === 'granted') injectTracker(config.attrs);
+    if (decision === 'granted') injectTrackers(config.attrs);
     // A denial after the tracker already loaded applies from the next
     // navigation; nothing new is injected and the stored record now says no.
   });

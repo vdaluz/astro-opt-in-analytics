@@ -12,7 +12,8 @@ export interface PromptCopy {
 }
 
 export interface AnalyticsConfig {
-  tracker: TrackerAdapter;
+  /** One tracker or several; all are injected together on a stored grant. */
+  tracker: TrackerAdapter | TrackerAdapter[];
   prompt: PromptCopy;
   /** Bump when what you track changes; stored decisions from older versions re-prompt. */
   consentVersion?: number;

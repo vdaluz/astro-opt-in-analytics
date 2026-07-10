@@ -68,7 +68,7 @@ Footer link, no JS required:
 
 ## How it works
 
-1. `ConsentGate` reads a versioned record from localStorage (`opt-in-analytics:consent`). Grant: the tracker `<script>` is injected. Anything else: nothing loads.
+1. `ConsentGate` reads a versioned record from localStorage (`opt-in-analytics:consent`). Grant: the tracker `<script>` is injected. Anything else: nothing loads. `tracker` also accepts an array of adapters; one grant injects all of them (e.g. Umami plus a manually-installed Cloudflare Web Analytics beacon), and the prompt copy should disclose every tracker it covers.
 2. `ConsentPrompt` shows only when there is no decision and no GPC signal. The answer is stored as `{ v, decision, at }`.
 3. Bump `consentVersion` in your config when what you track changes; older stored decisions re-prompt.
 4. A denial after a grant applies from the next navigation (the already-loaded script is not surgically removed; nothing new ever loads).
