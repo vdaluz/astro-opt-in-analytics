@@ -1,0 +1,72 @@
+---
+import type { AnalyticsConfig } from '../lib/types';
+
+interface Props {
+  config: AnalyticsConfig;
+}
+
+const { prompt } = Astro.props.config;
+
+// The UX constraints here are deliberate and not configurable: equal-weight
+// buttons, decline first in DOM order, dismissal means deny, no overlay, no
+// scroll lock. A consumer cannot turn this prompt into a dark pattern.
+---
+
+<div id="oia-prompt" role="dialog" aria-label={prompt.label ?? 'Analytics consent'} aria-live="polite" hidden>
+  <p class="oia-message">{prompt.message}</p>
+  <div class="oia-actions">
+    <button type="button" data-oia-decline>{prompt.decline}</button>
+    <button type="button" data-oia-accept>{prompt.accept}</button>
+  </div>
+</div>
+
+<script>
+  import { bootConsentPrompt } from '../lib/client';
+  bootConsentPrompt();
+</script>
+
+<style>
+  #oia-prompt {
+    position: fixed;
+    inset-block-end: 1rem;
+    inset-inline-end: 1rem;
+    z-index: 50;
+    max-width: 22rem;
+    padding: 1rem;
+    border: 1px solid var(--border, #444);
+    border-radius: 0.75rem;
+    background: var(--surface, #1a1a1a);
+    color: var(--fg, #eee);
+    box-shadow: 0 4px 24px rgb(0 0 0 / 0.4);
+  }
+
+  .oia-message {
+    margin: 0 0 0.75rem;
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  .oia-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  /* One rule for both buttons: refusing must look exactly as easy as accepting. */
+  .oia-actions button {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--accent, #7c7cff);
+    border-radius: 0.5rem;
+    background: transparent;
+    color: var(--fg, #eee);
+    font: inherit;
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+
+  .oia-actions button:hover,
+  .oia-actions button:focus-visible {
+    background: var(--accent, #7c7cff);
+    color: var(--on-accent, #111);
+  }
+</style>

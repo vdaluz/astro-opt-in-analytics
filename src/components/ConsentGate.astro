@@ -1,0 +1,21 @@
+---
+import type { AnalyticsConfig } from '../lib/types';
+
+interface Props {
+  config: AnalyticsConfig;
+}
+
+const { config } = Astro.props;
+
+// <-escaping keeps "</script>" inside attribute values from closing the JSON block.
+const payload = JSON.stringify({
+  attrs: config.tracker.scriptAttributes,
+  version: config.consentVersion ?? 1,
+}).replace(/</g, '\\u003c');
+---
+
+<script type="application/json" id="oia-config" set:html={payload} />
+<script>
+  import { bootConsentGate } from '../lib/client';
+  bootConsentGate();
+</script>
