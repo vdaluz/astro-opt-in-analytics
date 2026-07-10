@@ -26,6 +26,8 @@ const { prompt } = Astro.props.config;
 </script>
 
 <style>
+  /* Token values are R G B channel triplets (the @vdaluz/astro-blog contract),
+     consumed as rgb(var(--name, fallback-triplet)). */
   #oia-prompt {
     position: fixed;
     inset-block-end: 1rem;
@@ -33,10 +35,10 @@ const { prompt } = Astro.props.config;
     z-index: 50;
     max-width: 22rem;
     padding: 1rem;
-    border: 1px solid var(--border, #444);
+    border: 1px solid rgb(var(--border, 68 68 68));
     border-radius: 0.75rem;
-    background: var(--surface, #1a1a1a);
-    color: var(--fg, #eee);
+    background: rgb(var(--surface, 26 26 26));
+    color: rgb(var(--fg, 238 238 238));
     box-shadow: 0 4px 24px rgb(0 0 0 / 0.4);
   }
 
@@ -55,10 +57,10 @@ const { prompt } = Astro.props.config;
   .oia-actions button {
     flex: 1;
     padding: 0.5rem 0.75rem;
-    border: 1px solid var(--accent, #7c7cff);
+    border: 1px solid rgb(var(--accent, 124 124 255));
     border-radius: 0.5rem;
     background: transparent;
-    color: var(--fg, #eee);
+    color: rgb(var(--fg, 238 238 238));
     font: inherit;
     font-size: 0.9rem;
     cursor: pointer;
@@ -66,7 +68,7 @@ const { prompt } = Astro.props.config;
 
   .oia-actions button:hover,
   .oia-actions button:focus-visible {
-    background: var(--accent, #7c7cff);
-    color: var(--on-accent, #111);
+    background: rgb(var(--accent, 124 124 255));
+    color: rgb(var(--on-accent, 17 17 17));
   }
 </style>
