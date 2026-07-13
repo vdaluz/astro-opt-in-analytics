@@ -1,14 +1,16 @@
+import type { Localized } from './i18n';
+
 export interface TrackerAdapter {
   /** Attributes for the injected script tag. `src` is required; everything else is passed through. */
   scriptAttributes: Record<string, string> & { src: string };
 }
 
 export interface PromptCopy {
-  message: string;
-  accept: string;
-  decline: string;
+  message: Localized;
+  accept: Localized;
+  decline: Localized;
   /** Accessible name for the dialog. Defaults to "Analytics consent". */
-  label?: string;
+  label?: Localized;
 }
 
 export interface AnalyticsConfig {

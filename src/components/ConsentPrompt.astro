@@ -1,22 +1,29 @@
 ---
 import type { AnalyticsConfig } from '../lib/types';
+import { resolveLocalized } from '../lib/i18n';
 
 interface Props {
   config: AnalyticsConfig;
+  locale?: string;
 }
 
 const { prompt } = Astro.props.config;
+const { locale } = Astro.props;
 
 // The UX constraints here are deliberate and not configurable: equal-weight
 // buttons, decline first in DOM order, dismissal means deny, no overlay, no
 // scroll lock. A consumer cannot turn this prompt into a dark pattern.
+const label = prompt.label ? resolveLocalized(prompt.label, locale) : 'Analytics consent';
+const message = resolveLocalized(prompt.message, locale);
+const accept = resolveLocalized(prompt.accept, locale);
+const decline = resolveLocalized(prompt.decline, locale);
 ---
 
-<div id="oia-prompt" role="dialog" aria-label={prompt.label ?? 'Analytics consent'} aria-live="polite" hidden>
-  <p class="oia-message">{prompt.message}</p>
+<div id="oia-prompt" role="dialog" aria-label={label} aria-live="polite" hidden>
+  <p class="oia-message">{message}</p>
   <div class="oia-actions">
-    <button type="button" data-oia-decline>{prompt.decline}</button>
-    <button type="button" data-oia-accept>{prompt.accept}</button>
+    <button type="button" data-oia-decline>{decline}</button>
+    <button type="button" data-oia-accept>{accept}</button>
   </div>
 </div>
 
