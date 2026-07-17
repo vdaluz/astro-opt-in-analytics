@@ -108,6 +108,11 @@ This requires switching off Cloudflare's edge auto-injection for the zone (dashb
 
 The prompt reads CSS custom properties with sensible dark fallbacks: `--surface`, `--fg`, `--border`, `--accent`, `--on-accent`. Same token contract as [@vdaluz/astro-blog](https://github.com/vdaluz/astro-blog): values are **R G B channel triplets** (e.g. `--surface: 26 26 26;`), consumed as `rgb(var(--name))`. If your app already defines those, the prompt matches your theme with zero extra CSS.
 
+## Consumers
+
+- [vdaluz.com](https://vdaluz.com)
+- [imperfectsystems.com](https://imperfectsystems.com)
+
 ## License
 
 MIT
