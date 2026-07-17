@@ -1,6 +1,6 @@
 {
   "name": "@vdaluz/astro-opt-in-analytics",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Consent-first analytics for Astro: an opt-in prompt, a script gate, and zero tracking requests until the visitor says yes.",
   "type": "module",
   "license": "MIT",
@@ -11,7 +11,8 @@
     ".": "./src/index.ts",
     "./client": "./src/lib/client.ts",
     "./ConsentGate.astro": "./src/components/ConsentGate.astro",
-    "./ConsentPrompt.astro": "./src/components/ConsentPrompt.astro"
+    "./ConsentPrompt.astro": "./src/components/ConsentPrompt.astro",
+    "./PrivacyExplainer.astro": "./src/components/PrivacyExplainer.astro"
   },
   "peerDependencies": {
     "astro": ">=6.0.0"

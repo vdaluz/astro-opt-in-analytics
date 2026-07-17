@@ -1,6 +1,8 @@
 export { defineAnalyticsConfig } from './lib/config';
 export { umami } from './lib/adapters/umami';
 export type { UmamiOptions } from './lib/adapters/umami';
+export { cloudflareBeacon } from './lib/adapters/cloudflare-beacon';
+export type { CloudflareBeaconOptions } from './lib/adapters/cloudflare-beacon';
 export { CONSENT_STORAGE_KEY, readConsent, writeConsent, gpcDenied } from './lib/consent';
 export type {
   AnalyticsConfig,
@@ -8,4 +10,5 @@ export type {
   ConsentRecord,
   PromptCopy,
   TrackerAdapter,
+  TrackerPrivacyInfo,
 } from './lib/types';

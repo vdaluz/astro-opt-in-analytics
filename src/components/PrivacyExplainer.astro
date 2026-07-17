@@ -1,0 +1,116 @@
+---
+import type { AnalyticsConfig } from '../lib/types';
+import { resolveLocalized, type Localized } from '../lib/i18n';
+
+interface Props {
+  config: AnalyticsConfig;
+  locale?: string;
+}
+
+const { config, locale } = Astro.props;
+
+const trackers = Array.isArray(config.tracker) ? config.tracker : [config.tracker];
+const documented = trackers.filter((tracker) => tracker.privacyInfo);
+
+const t = (text: Localized) => resolveLocalized(text, locale);
+
+const strings = {
+  whatsCollectedHeading: { default: "What's collected", es: 'Qué se recopila' },
+  whatsCollectedBody: {
+    default:
+      "If you say yes to the analytics prompt, this site counts your visit: the page you viewed, the referring site, and a general device/browser type. That's it.",
+    es: 'Si aceptas el aviso de analítica, este sitio cuenta tu visita: la página que viste, el sitio de referencia y un tipo general de dispositivo/navegador. Eso es todo.',
+  },
+  bullets: [
+    { default: 'No cookies', es: 'Sin cookies' },
+    { default: 'No fingerprinting', es: 'Sin fingerprinting' },
+    { default: 'No cross-site tracking', es: 'Sin rastreo entre sitios' },
+    {
+      default: 'No personal data, no IP address stored',
+      es: 'Sin datos personales, sin almacenar tu dirección IP',
+    },
+    {
+      default: 'No advertising, no data sold or shared with anyone',
+      es: 'Sin publicidad, sin vender ni compartir datos con nadie',
+    },
+  ],
+  nothingLoadsHeading: {
+    default: 'Nothing loads before you decide',
+    es: 'Nada se carga antes de que decidas',
+  },
+  nothingLoadsBodyBefore: {
+    default:
+      "The tracking scripts don't exist on the page at all until you say yes to the prompt. If your browser sends a",
+    es: 'Los scripts de rastreo no existen en la página hasta que aceptas el aviso. Si tu navegador envía una señal de',
+  },
+  gpcLinkText: { default: 'Global Privacy Control', es: 'Global Privacy Control' },
+  nothingLoadsBodyAfter: {
+    default:
+      'signal, that counts as a no automatically and the prompt never shows. You can change your mind anytime with the link below.',
+    es: 'eso cuenta automáticamente como un no y el aviso nunca aparece. Puedes cambiar de opinión cuando quieras con el enlace de abajo.',
+  },
+  reopenLinkText: { default: 'Open analytics preferences', es: 'Abrir preferencias de analítica' },
+  toolsHeading: { default: 'The tools behind it', es: 'Las herramientas detrás de esto' },
+  toolsIntro: {
+    default:
+      'Analytics tools run only after you say yes, all cookieless by design, none able to identify you individually:',
+    es: 'Las herramientas de analítica funcionan solo si aceptas, todas sin cookies por diseño, ninguna capaz de identificarte individualmente:',
+  },
+};
+---
+
+<div class="space-y-12">
+  <div>
+    <h2 class="text-2xl font-bold text-fg mb-4">{t(strings.whatsCollectedHeading)}</h2>
+    <p class="text-muted mb-4">{t(strings.whatsCollectedBody)}</p>
+    <ul class="list-disc list-inside text-muted space-y-2">
+      {strings.bullets.map((bullet) => <li>{t(bullet)}</li>)}
+    </ul>
+  </div>
+
+  <div>
+    <h2 class="text-2xl font-bold text-fg mb-4">{t(strings.nothingLoadsHeading)}</h2>
+    <p class="text-muted">
+      {t(strings.nothingLoadsBodyBefore)}{' '}
+      <a
+        href="https://globalprivacycontrol.org/"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="text-accent underline hover:text-accent-strong">{t(strings.gpcLinkText)}</a
+      >{' '}
+      {t(strings.nothingLoadsBodyAfter)}{' '}
+      <button
+        type="button"
+        data-open-analytics-prompt
+        class="text-accent underline hover:text-accent-strong"
+      >
+        {t(strings.reopenLinkText)}
+      </button>
+    </p>
+  </div>
+
+  {
+    documented.length > 0 && (
+      <div>
+        <h2 class="text-2xl font-bold text-fg mb-4">{t(strings.toolsHeading)}</h2>
+        <p class="text-muted mb-4">{t(strings.toolsIntro)}</p>
+        <ul class="space-y-4 text-muted">
+          {documented.map((tracker) => (
+            <li>
+              <strong class="text-fg">{t(tracker.privacyInfo!.label)}</strong> (
+              <a
+                href={tracker.privacyInfo!.learnMoreUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-accent underline hover:text-accent-strong"
+              >
+                {tracker.privacyInfo!.toolName}
+              </a>
+              ){tracker.privacyInfo!.description && <> {t(tracker.privacyInfo!.description)}</>}
+            </li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
+</div>

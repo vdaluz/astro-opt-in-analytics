@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repo is
 
-`@vdaluz/astro-opt-in-analytics`: consent-first analytics for Astro sites. An opt-in prompt, a consent gate, and a tracker adapter (Umami first). The tracker script is injected only after an explicit stored grant; denied, unanswered, or a Global Privacy Control signal means zero requests. Consumed by vdaluz.com and imperfectsystems.com as a pinned https-tarball dependency.
+`@vdaluz/astro-opt-in-analytics`: consent-first analytics for Astro sites. An opt-in prompt, a consent gate, tracker adapters (`umami`, `cloudflareBeacon`), and a `PrivacyExplainer` component that renders a `/privacy` page's substantive copy straight from the tracker config. The tracker script is injected only after an explicit stored grant; denied, unanswered, or a Global Privacy Control signal means zero requests. Consumed by vdaluz.com and imperfectsystems.com as a pinned https-tarball dependency.
 
 ## Workflow
 
@@ -13,7 +13,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Conventions
 
 - **Raw source, no build step.** Ships `.ts` and `.astro` from `src/`; the consuming app's Astro/Vite compiles them. Never add a build/dist step or `main` field.
-- **Per-path exports.** Components are exposed via the `exports` map in `package.json` (`./ConsentGate.astro`, `./ConsentPrompt.astro`, `./client`). New public files need an exports entry.
+- **Per-path exports.** Components are exposed via the `exports` map in `package.json` (`./ConsentGate.astro`, `./ConsentPrompt.astro`, `./PrivacyExplainer.astro`, `./client`). New public files need an exports entry.
+- **`TrackerPrivacyInfo` is optional metadata, not injection config.** `privacyInfo` on a `TrackerAdapter` only feeds `PrivacyExplainer`'s "tools behind it" list - `ConsentGate.astro` serializes only `scriptAttributes` into the injected payload, so this field must never affect what loads on the page.
 - **Token-driven styling.** The prompt reads only these CSS custom properties, same contract as @vdaluz/astro-blog: `--surface`, `--fg`, `--border`, `--accent`, `--on-accent`, with values as **R G B channel triplets** consumed via `rgb(var(--name, fallback))`. Never use whole-color var() values (a triplet resolves to an invalid color and the declaration is silently dropped - found the hard way in IPS-149) and never hardcode site colors beyond the fallback triplets.
 - **No dark patterns.** The prompt's UX constraints (equal-weight buttons, decline first in DOM, dismissal = deny, no overlay, no scroll lock, GPC = auto-deny without prompting) are the product. Do not make them configurable, do not weaken them on request without the maintainer explicitly overriding this file.
 - **No tracking data in this repo.** Site IDs, endpoints, and prompt copy live in each consumer's config, never here.

@@ -66,6 +66,37 @@ Footer link, no JS required:
 <button type="button" data-open-analytics-prompt>Analytics preferences</button>
 ```
 
+## Privacy explainer page
+
+`PrivacyExplainer.astro` renders the substantive sections of a `/privacy` page - what's collected, how consent gates it, and which tools are behind it - sourced directly from your `analytics` config so the page can't drift from what's actually injected. Wrap it in your own layout and hero copy:
+
+```astro
+---
+// src/pages/privacy.astro
+import Layout from '../layouts/Layout.astro';
+import PrivacyExplainer from '@vdaluz/astro-opt-in-analytics/PrivacyExplainer.astro';
+import { analytics } from '../config/analytics';
+---
+<Layout title="Privacy & Analytics">
+  <h1>Privacy &amp; analytics</h1>
+  <PrivacyExplainer config={analytics} locale={Astro.currentLocale} />
+</Layout>
+```
+
+The "tools behind it" list only shows trackers that carry a `privacyInfo` field. Both bundled adapters set a sensible default - `umami()` points at [umami.is/privacy](https://umami.is/privacy), `cloudflareBeacon()` at [cloudflare.com/web-analytics](https://www.cloudflare.com/web-analytics/) - override `privacyInfo` per adapter call to customize the label or add a `description` clause about your specific deployment (e.g. "that I run myself, on my own infrastructure"). A tracker with no `privacyInfo` is simply omitted from the list.
+
+## Cloudflare Web Analytics
+
+`cloudflareBeacon({ token })` builds the manual (non-auto-injected) beacon script tag, gated by consent like any other adapter:
+
+```ts
+import { cloudflareBeacon } from '@vdaluz/astro-opt-in-analytics';
+
+cloudflareBeacon({ token: '00000000000000000000000000000000' });
+```
+
+This requires switching off Cloudflare's edge auto-injection for the zone (dashboard: Web Analytics → Manage Site → enable "JS snippet installation") - otherwise the auto-injected beacon loads unconditionally alongside this one, bypassing consent.
+
 ## How it works
 
 1. `ConsentGate` reads a versioned record from localStorage (`opt-in-analytics:consent`). Grant: the tracker `<script>` is injected. Anything else: nothing loads. `tracker` also accepts an array of adapters; one grant injects all of them (e.g. Umami plus a manually-installed Cloudflare Web Analytics beacon), and the prompt copy should disclose every tracker it covers.
