@@ -1,6 +1,6 @@
 {
   "name": "@vdaluz/astro-opt-in-analytics",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Consent-first analytics for Astro: an opt-in prompt, a script gate, and zero tracking requests until the visitor says yes.",
   "type": "module",
   "license": "MIT",

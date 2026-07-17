@@ -17,6 +17,7 @@ export function cloudflareBeacon({
   return {
     scriptAttributes: {
       src: 'https://static.cloudflareinsights.com/beacon.min.js',
+      type: 'module',
       'data-cf-beacon': JSON.stringify({ token }),
       ...extra,
     },
