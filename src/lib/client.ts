@@ -15,6 +15,8 @@ const PROMPT_ELEMENT_ID = 'oia-prompt';
 const CHOOSE_EVENT = 'oia:choose';
 const OPEN_PROMPT_EVENT = 'oia:open-prompt';
 const STATE_ATTRIBUTE = 'data-oia-state';
+const MOBILE_QUERY = '(max-width: 640px)';
+const MOBILE_DEFER_MS = 3000;
 
 function getState(): ConsentState {
   return (document.documentElement.getAttribute(STATE_ATTRIBUTE) as ConsentState) ?? 'undecided';
@@ -114,5 +116,26 @@ export function bootConsentPrompt(): void {
     if (target?.closest('[data-open-analytics-prompt]')) openConsentPrompt();
   });
 
-  if (getState() === 'undecided') prompt.hidden = false;
+  if (getState() !== 'undecided') return;
+
+  // On phone widths the prompt renders as a full-width bottom sheet tall
+  // enough to cover the hero on first paint. Deferring its first reveal
+  // until the visitor scrolls (or a short idle timeout, for pages short
+  // enough to never need scrolling) gives that first paint a clean look
+  // without weakening any of the "no dark pattern" guarantees below - the
+  // prompt still auto-reveals immediately everywhere else.
+  if (window.matchMedia(MOBILE_QUERY).matches) {
+    let revealed = false;
+    const reveal = (): void => {
+      if (revealed) return;
+      revealed = true;
+      window.removeEventListener('scroll', reveal);
+      clearTimeout(timer);
+      prompt.hidden = false;
+    };
+    window.addEventListener('scroll', reveal, { once: true, passive: true });
+    const timer = window.setTimeout(reveal, MOBILE_DEFER_MS);
+  } else {
+    prompt.hidden = false;
+  }
 }
