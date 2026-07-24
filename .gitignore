@@ -1,3 +1,4 @@
 node_modules/
+.astro
 *.tgz
 .DS_Store

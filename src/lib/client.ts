@@ -58,7 +58,7 @@ export function bootConsentGate(): void {
   const config = readGateConfig();
   if (!config) return;
 
-  if (gpcDenied(navigator)) {
+  if (gpcDenied(navigator as Navigator & { globalPrivacyControl?: boolean })) {
     // The browser already answered for the user. Never prompt, never persist,
     // never track while the signal is present.
     setState('gpc');

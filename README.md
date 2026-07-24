@@ -1,5 +1,7 @@
 # @vdaluz/astro-opt-in-analytics
 
+[![CI](https://github.com/vdaluz/astro-opt-in-analytics/actions/workflows/ci.yml/badge.svg)](https://github.com/vdaluz/astro-opt-in-analytics/actions/workflows/ci.yml)
+
 Consent-first analytics for Astro. The tracker script does not exist on the page until the visitor says yes: no requests, no fingerprinting surface, nothing to block. An opt-in prompt asks once, the answer is remembered, and refusing is exactly as easy as accepting.
 
 Built for [Umami](https://umami.is) first, with a small adapter interface for other trackers. Ships raw `.astro` and `.ts` - the consuming app's Astro/Vite compiles them (no prebuild step).
