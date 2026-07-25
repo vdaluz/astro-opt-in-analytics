@@ -4,6 +4,12 @@ All notable changes to this project are documented here. Format loosely follows 
 
 ## [Unreleased]
 
+## [0.5.5] - 2026-07-25
+
+### Documentation
+
+- Documented `PrivacyExplainer`'s Tailwind dependency in the Styling section - it's styled with Tailwind token utility classes, not CSS custom properties like the rest of the package, so it needs the token color aliases and a `content` glob entry in the consuming app's Tailwind config or it renders unstyled.
+
 ## [0.5.4] - 2026-07-25
 
 ### Fixed

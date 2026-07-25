@@ -116,6 +116,13 @@ This requires switching off Cloudflare's edge auto-injection for the zone (dashb
 
 The prompt reads CSS custom properties with sensible dark fallbacks: `--surface`, `--fg`, `--border`, `--accent`, `--on-accent`. Same token contract as [@vdaluz/astro-blog](https://github.com/vdaluz/astro-blog): values are **R G B channel triplets** (e.g. `--surface: 26 26 26;`), consumed as `rgb(var(--name))`. If your app already defines those, the prompt matches your theme with zero extra CSS.
 
+`PrivacyExplainer.astro` is different: it's styled entirely with Tailwind token utility classes (`text-fg`, `text-muted`, `text-accent`, `space-y-12`, and similar), not CSS custom properties. For it to render styled at all, your app must:
+
+1. **Alias the token colors in `tailwind.config.mjs`** - see [`@vdaluz/astro-blog`'s README](https://github.com/vdaluz/astro-blog#four-things-every-consumer-must-do) for the exact color-alias block, since both packages share the same token names.
+2. **Include this package in your Tailwind `content` glob**: `./node_modules/@vdaluz/astro-opt-in-analytics/**/*.astro` - without it, `PrivacyExplainer`'s utility classes are never generated and the page renders unstyled.
+
+Without both, `PrivacyExplainer` still works functionally (it's sourced from your live config, so it can't drift from what's actually injected) but renders as unstyled text.
+
 ## Consumers
 
 - [vdaluz.com](https://vdaluz.com)
