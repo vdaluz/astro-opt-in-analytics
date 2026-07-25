@@ -20,4 +20,5 @@ const payload = JSON.stringify({
 <script>
   import { bootConsentGate } from '../lib/client';
   bootConsentGate();
+  document.addEventListener('astro:page-load', bootConsentGate);
 </script>

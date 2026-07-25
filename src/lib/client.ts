@@ -50,9 +50,13 @@ function injectTrackers(attrs: GateConfig['attrs']): void {
   });
 }
 
+let gateChooseListenerBound = false;
+
 /**
- * Boot the consent gate. Runs once per page, before the prompt boots (DOM order).
- * Stamps the current state on <html> and injects the tracker only for a stored grant.
+ * Boot the consent gate. Re-run on every astro:page-load (see ConsentGate.astro) so a
+ * ClientRouter navigation re-stamps state and re-injects the tracker for the new page;
+ * a document-level CHOOSE_EVENT listener only needs binding once since `document` itself
+ * persists across soft navigations.
  */
 export function bootConsentGate(): void {
   const config = readGateConfig();
@@ -69,6 +73,8 @@ export function bootConsentGate(): void {
   setState(stored ?? 'undecided');
   if (stored === 'granted') injectTrackers(config.attrs);
 
+  if (gateChooseListenerBound) return;
+  gateChooseListenerBound = true;
   document.addEventListener(CHOOSE_EVENT, (event) => {
     const decision = (event as CustomEvent<ConsentDecision>).detail;
     if (decision !== 'granted' && decision !== 'denied') return;
@@ -85,9 +91,42 @@ export function openConsentPrompt(): void {
   document.dispatchEvent(new CustomEvent(OPEN_PROMPT_EVENT));
 }
 
+let promptDocumentListenersBound = false;
+let pendingMobileReveal: (() => void) | null = null;
+
+function scheduleMobileReveal(prompt: HTMLElement): void {
+  // A soft navigation can happen mid-countdown from a previous page; clear that
+  // pending timer/listener before scheduling a fresh one for the new element.
+  pendingMobileReveal?.();
+
+  let revealed = false;
+  const reveal = (): void => {
+    if (revealed) return;
+    revealed = true;
+    window.removeEventListener('scroll', reveal);
+    clearTimeout(timer);
+    pendingMobileReveal = null;
+    prompt.hidden = false;
+  };
+  window.addEventListener('scroll', reveal, { once: true, passive: true });
+  const timer = window.setTimeout(reveal, MOBILE_DEFER_MS);
+  pendingMobileReveal = (): void => {
+    window.removeEventListener('scroll', reveal);
+    clearTimeout(timer);
+  };
+}
+
 /**
  * Boot the consent prompt. Shows itself only when the visitor has not decided
  * and no privacy signal already answered. Reopens on request, in either state.
+ *
+ * Re-run on every astro:page-load (see ConsentPrompt.astro): a ClientRouter
+ * navigation swaps in a fresh #oia-prompt element with no listeners, so the
+ * element-scoped bindings below must rebind every time. The document-level
+ * listeners only need binding once since `document` persists across soft nav -
+ * OPEN_PROMPT_EVENT's handler re-queries the prompt fresh at fire-time instead
+ * of closing over this run's element, so it stays correct across navigations
+ * without needing to be re-registered.
  */
 export function bootConsentPrompt(): void {
   const prompt = document.getElementById(PROMPT_ELEMENT_ID);
@@ -105,16 +144,21 @@ export function bootConsentPrompt(): void {
     if ((event as KeyboardEvent).key === 'Escape') choose('denied');
   });
 
-  document.addEventListener(OPEN_PROMPT_EVENT, () => {
-    if (getState() === 'gpc') return;
-    prompt.hidden = false;
-    (prompt.querySelector('[data-oia-decline]') as HTMLElement | null)?.focus();
-  });
+  if (!promptDocumentListenersBound) {
+    promptDocumentListenersBound = true;
 
-  document.addEventListener('click', (event) => {
-    const target = event.target as HTMLElement | null;
-    if (target?.closest('[data-open-analytics-prompt]')) openConsentPrompt();
-  });
+    document.addEventListener(OPEN_PROMPT_EVENT, () => {
+      const current = document.getElementById(PROMPT_ELEMENT_ID);
+      if (!current || getState() === 'gpc') return;
+      current.hidden = false;
+      (current.querySelector('[data-oia-decline]') as HTMLElement | null)?.focus();
+    });
+
+    document.addEventListener('click', (event) => {
+      const target = event.target as HTMLElement | null;
+      if (target?.closest('[data-open-analytics-prompt]')) openConsentPrompt();
+    });
+  }
 
   if (getState() !== 'undecided') return;
 
@@ -125,16 +169,7 @@ export function bootConsentPrompt(): void {
   // without weakening any of the "no dark pattern" guarantees below - the
   // prompt still auto-reveals immediately everywhere else.
   if (window.matchMedia(MOBILE_QUERY).matches) {
-    let revealed = false;
-    const reveal = (): void => {
-      if (revealed) return;
-      revealed = true;
-      window.removeEventListener('scroll', reveal);
-      clearTimeout(timer);
-      prompt.hidden = false;
-    };
-    window.addEventListener('scroll', reveal, { once: true, passive: true });
-    const timer = window.setTimeout(reveal, MOBILE_DEFER_MS);
+    scheduleMobileReveal(prompt);
   } else {
     prompt.hidden = false;
   }

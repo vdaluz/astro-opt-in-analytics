@@ -47,6 +47,7 @@ const decline = resolveLocalized(prompt.decline, locale);
 <script>
   import { bootConsentPrompt } from '../lib/client';
   bootConsentPrompt();
+  document.addEventListener('astro:page-load', bootConsentPrompt);
 </script>
 
 <style>

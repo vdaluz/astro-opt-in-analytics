@@ -4,6 +4,12 @@ All notable changes to this project are documented here. Format loosely follows 
 
 ## [Unreleased]
 
+## [0.5.4] - 2026-07-25
+
+### Fixed
+
+- `ConsentGate`/`ConsentPrompt` now re-run their setup on every `astro:page-load`, so a `<ClientRouter />` (view transitions) navigation correctly rebinds the fresh prompt's accept/decline buttons and re-reveals it - previously they only bootstrapped once per full page load, going dead after the first client-side navigation. Also fixes a stale-closure bug where the footer "Analytics preferences" reopen button targeted the original page's (by then detached) prompt element instead of the current one, and a related timer/listener leak in the mobile scroll-or-idle reveal path.
+
 ## [0.5.3] - 2026-07-25
 
 ### Added
