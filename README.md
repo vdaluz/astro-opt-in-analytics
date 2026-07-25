@@ -17,16 +17,20 @@ Most "privacy-respecting analytics" setups still track by default and put the bu
 
 ## Install
 
-Pinned https tarball from a tag (no registry needed):
+```
+npm install @vdaluz/astro-opt-in-analytics
+```
+
+Alternatively, a pinned https tarball from a tag works too, with no registry involved:
 
 ```jsonc
 // package.json
 "dependencies": {
-  "@vdaluz/astro-opt-in-analytics": "https://github.com/vdaluz/astro-opt-in-analytics/archive/refs/tags/v0.5.1.tar.gz"
+  "@vdaluz/astro-opt-in-analytics": "https://github.com/vdaluz/astro-opt-in-analytics/archive/refs/tags/v0.5.5.tar.gz"
 }
 ```
 
-> **Why a tarball, not `github:...`?** npm canonicalizes GitHub shorthand to `git+ssh://` in the lockfile, and CI runners without SSH keys fail to clone it. The archive URL is anonymous https with an integrity hash. Bump the tag in the URL to upgrade. This is the only supported install path; there's no npm registry package (tag-tarball works for anyone, no registry auth needed).
+> **Why a tarball, not `github:...`?** npm canonicalizes GitHub shorthand to `git+ssh://` in the lockfile, and CI runners without SSH keys fail to clone it. The archive URL is anonymous https with an integrity hash. Bump the tag in the URL to upgrade.
 
 Peer dependency: `astro` >= 6.
 
