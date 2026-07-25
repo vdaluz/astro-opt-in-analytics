@@ -22,6 +22,9 @@
   },
   "license": "MIT",
   "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "check": "astro check",
     "test": "node --test"
