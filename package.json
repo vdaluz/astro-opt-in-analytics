@@ -1,9 +1,27 @@
 {
   "name": "@vdaluz/astro-opt-in-analytics",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "Consent-first analytics for Astro: an opt-in prompt, a script gate, and zero tracking requests until the visitor says yes - proven in production on vdaluz.com and imperfectsystems.com.",
-  "type": "module",
+  "keywords": [
+    "astro",
+    "astro-component",
+    "analytics",
+    "consent",
+    "privacy",
+    "gdpr",
+    "umami",
+    "cloudflare-web-analytics"
+  ],
+  "homepage": "https://github.com/vdaluz/astro-opt-in-analytics#readme",
+  "bugs": {
+    "url": "https://github.com/vdaluz/astro-opt-in-analytics/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vdaluz/astro-opt-in-analytics.git"
+  },
   "license": "MIT",
+  "type": "module",
   "scripts": {
     "check": "astro check",
     "test": "node --test"
