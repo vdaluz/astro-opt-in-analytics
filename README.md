@@ -4,7 +4,7 @@
 
 Consent-first analytics for Astro. The tracker script does not exist on the page until the visitor says yes: no requests, no fingerprinting surface, nothing to block. An opt-in prompt asks once, the answer is remembered, and refusing is exactly as easy as accepting.
 
-Built for [Umami](https://umami.is) first, with a small adapter interface for other trackers. Ships raw `.astro` and `.ts` - the consuming app's Astro/Vite compiles them (no prebuild step).
+Built for [Umami](https://umami.is) first, with a small adapter interface for other trackers. Ships raw `.astro` and `.ts` - the consuming app's Astro/Vite compiles them (no prebuild step). Proven in production on [vdaluz.com](https://vdaluz.com) and [imperfectsystems.com](https://imperfectsystems.com) - see [Consumers](#consumers).
 
 ## Why opt-in
 
@@ -22,11 +22,11 @@ Pinned https tarball from a tag (no registry needed):
 ```jsonc
 // package.json
 "dependencies": {
-  "@vdaluz/astro-opt-in-analytics": "https://github.com/vdaluz/astro-opt-in-analytics/archive/refs/tags/v0.1.0.tar.gz"
+  "@vdaluz/astro-opt-in-analytics": "https://github.com/vdaluz/astro-opt-in-analytics/archive/refs/tags/v0.5.1.tar.gz"
 }
 ```
 
-> **Why a tarball, not `github:...`?** npm canonicalizes GitHub shorthand to `git+ssh://` in the lockfile, and CI runners without SSH keys fail to clone it. The archive URL is anonymous https with an integrity hash. Bump the tag in the URL to upgrade.
+> **Why a tarball, not `github:...`?** npm canonicalizes GitHub shorthand to `git+ssh://` in the lockfile, and CI runners without SSH keys fail to clone it. The archive URL is anonymous https with an integrity hash. Bump the tag in the URL to upgrade. This is the only supported install path; there's no npm registry package (tag-tarball works for anyone, no registry auth needed).
 
 Peer dependency: `astro` >= 6.
 
@@ -67,6 +67,12 @@ Footer link, no JS required:
 ```html
 <button type="button" data-open-analytics-prompt>Analytics preferences</button>
 ```
+
+### Example
+
+`ConsentPrompt` live on vdaluz.com, first visit, no stored decision:
+
+![ConsentPrompt dialog on vdaluz.com](docs/consent-prompt-example.png)
 
 ## Privacy explainer page
 
@@ -114,6 +120,10 @@ The prompt reads CSS custom properties with sensible dark fallbacks: `--surface`
 
 - [vdaluz.com](https://vdaluz.com)
 - [imperfectsystems.com](https://imperfectsystems.com)
+
+## Contributing
+
+Issues welcome. PRs by discussion - open an issue first for anything beyond a typo or docs fix.
 
 ## License
 
