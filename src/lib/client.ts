@@ -1,4 +1,4 @@
-import { gpcDenied, readConsent, writeConsent } from './consent';
+import { gpcDenied, readConsent, writeConsent } from './consent.ts';
 import type { ConsentDecision } from './types';
 
 type ConsentState = 'gpc' | 'granted' | 'denied' | 'undecided';
@@ -64,10 +64,13 @@ export function bootConsentGate(): void {
 
   if (gpcDenied(navigator as Navigator & { globalPrivacyControl?: boolean })) {
     // The browser already answered for the user. Never prompt, never persist,
-    // never track while the signal is present.
+    // never track while the signal is present - including never binding the
+    // affiliate-click listener below.
     setState('gpc');
     return;
   }
+
+  bindAffiliateClickTracking();
 
   const stored = readConsent(localStorage, config.version);
   setState(stored ?? 'undecided');
@@ -83,6 +86,73 @@ export function bootConsentGate(): void {
     if (decision === 'granted') injectTrackers(config.attrs);
     // A denial after the tracker already loaded applies from the next
     // navigation; nothing new is injected and the stored record now says no.
+  });
+}
+
+interface WindowWithUmami extends Window {
+  umami?: { track: (name: string, data?: Record<string, string>) => void };
+}
+
+/** Pure decision extracted from trackEvent() so it's testable without a DOM. */
+export function shouldTrack(state: ConsentState, hasUmami: boolean): boolean {
+  return state === 'granted' && hasUmami;
+}
+
+/**
+ * Reports a custom event to Umami if consent is currently granted, no-ops otherwise
+ * (denied, undecided, GPC, or no Umami tracker on this page - e.g. Cloudflare Beacon
+ * only, which has no custom-event API). Consent is checked live via getState(), so a
+ * decision made after this module loaded is picked up correctly.
+ */
+export function trackEvent(name: string, data?: Record<string, string>): void {
+  const umami = (window as WindowWithUmami).umami;
+  if (!shouldTrack(getState(), typeof umami?.track === 'function')) return;
+  umami!.track(name, data);
+}
+
+const AFFILIATE_KEY_ATTR = 'data-affiliate-key';
+const AFFILIATE_CHANNEL_ATTR = 'data-affiliate-channel';
+const AFFILIATE_PROGRAM_ATTR = 'data-affiliate-program';
+const AFFILIATE_CLICK_EVENT = 'affiliate-click';
+
+/**
+ * Builds the affiliate-click payload from an <AffiliateLink>'s data attributes (see
+ * @vdaluz/astro-affiliate). Returns null when key/program are missing - not a valid
+ * affiliate link, skip tracking rather than send a partial event. `channel` defaults
+ * to 'default' so Umami's per-channel breakdown is populated even for links that
+ * don't pass one.
+ */
+export function buildAffiliateClickPayload(attrs: {
+  key?: string | null;
+  channel?: string | null;
+  program?: string | null;
+}): Record<string, string> | null {
+  if (!attrs.key || !attrs.program) return null;
+  return { key: attrs.key, channel: attrs.channel ?? 'default', program: attrs.program };
+}
+
+let affiliateClickListenerBound = false;
+
+/**
+ * Delegated click listener for any `[data-affiliate-key]` anchor on the page, same
+ * pattern as the `[data-open-analytics-prompt]` listener below. Bound once from
+ * bootConsentGate() - harmless on pages with no affiliate links, and consent is
+ * re-checked live by trackEvent() at click time, so binding here doesn't itself track
+ * anything.
+ */
+function bindAffiliateClickTracking(): void {
+  if (affiliateClickListenerBound) return;
+  affiliateClickListenerBound = true;
+  document.addEventListener('click', (event) => {
+    const target = event.target as HTMLElement | null;
+    const link = target?.closest(`[${AFFILIATE_KEY_ATTR}]`) as HTMLElement | null;
+    if (!link) return;
+    const payload = buildAffiliateClickPayload({
+      key: link.getAttribute(AFFILIATE_KEY_ATTR),
+      channel: link.getAttribute(AFFILIATE_CHANNEL_ATTR),
+      program: link.getAttribute(AFFILIATE_PROGRAM_ATTR),
+    });
+    if (payload) trackEvent(AFFILIATE_CLICK_EVENT, payload);
   });
 }
 

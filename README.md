@@ -26,7 +26,7 @@ Alternatively, a pinned https tarball from a tag works too, with no registry inv
 ```jsonc
 // package.json
 "dependencies": {
-  "@vdaluz/astro-opt-in-analytics": "https://github.com/vdaluz/astro-opt-in-analytics/archive/refs/tags/v0.5.5.tar.gz"
+  "@vdaluz/astro-opt-in-analytics": "https://github.com/vdaluz/astro-opt-in-analytics/archive/refs/tags/v0.6.0.tar.gz"
 }
 ```
 
@@ -108,6 +108,16 @@ cloudflareBeacon({ token: '00000000000000000000000000000000' });
 ```
 
 This requires switching off Cloudflare's edge auto-injection for the zone (dashboard: Web Analytics → Manage Site → enable "JS snippet installation") - otherwise the auto-injected beacon loads unconditionally alongside this one, bypassing consent.
+
+## Custom events
+
+`trackEvent(name, data?)` (from `./client`) reports a custom event to Umami, gated on live consent the same way the pageview tracker is: it no-ops when consent is denied, undecided, GPC applies, or the page has no Umami tracker (e.g. Cloudflare Beacon only - it has no custom-event API, so `trackEvent` is Umami-only by design). Consent is re-checked at call time, not at page load.
+
+### Affiliate click tracking
+
+`bindAffiliateClickTracking()` is wired in automatically by `bootConsentGate()` - no extra setup needed. It's a delegated click listener for any `[data-affiliate-key]` anchor on the page, the contract [`@vdaluz/astro-affiliate`'s `<AffiliateLink>`](https://github.com/vdaluz/astro-affiliate#click-tracking) renders. On click it reports an `affiliate-click` event with `{ key, channel, program }` - `channel` defaults to `'default'` when the link didn't pass one, so Umami's per-channel breakdown is always populated. Middle-click (`auxclick`) is not counted; this sits inside the same consent-gated undercount the rest of the package already accepts.
+
+Harmless on pages with no affiliate links - the listener still binds (cheap, one delegated handler) but never matches anything.
 
 ## How it works
 

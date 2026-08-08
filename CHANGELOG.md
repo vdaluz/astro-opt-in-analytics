@@ -4,6 +4,13 @@ All notable changes to this project are documented here. Format loosely follows 
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-08-08
+
+### Added
+
+- `trackEvent(name, data?)` (from `./client`): reports a consent-gated custom event to Umami, no-op on other/no trackers.
+- `bindAffiliateClickTracking()`, wired in automatically by `bootConsentGate()`: reports an `affiliate-click` event for any `[data-affiliate-key]` anchor on the page (see `@vdaluz/astro-affiliate`'s `<AffiliateLink>`).
+
 ## [0.5.5] - 2026-07-25
 
 ### Documentation
