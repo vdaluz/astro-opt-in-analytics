@@ -11,12 +11,36 @@ export interface TrackerPrivacyInfo {
   description?: Localized;
 }
 
-export interface TrackerAdapter {
+/** A tracker whose init/tracking happens by injecting a `<script>` tag (e.g. Cloudflare Beacon). */
+export interface ScriptTrackerAdapter {
+  kind?: 'script';
   /** Attributes for the injected script tag. `src` is required; everything else is passed through. */
   scriptAttributes: Record<string, string> & { src: string };
   /** Optional info for PrivacyExplainer. Omit for internal/undocumented trackers. */
   privacyInfo?: TrackerPrivacyInfo;
 }
+
+/**
+ * A tracker that reports directly to Umami's /api/send instead of loading the official
+ * tracker script. Umami's script gates its own init on `document.currentScript`, which is
+ * null for a script this package injects dynamically after consent - the script silently
+ * never initializes. Posting to the documented API endpoint sidesteps that entirely.
+ */
+export interface UmamiApiTrackerAdapter {
+  kind: 'umami-api';
+  /** e.g. https://umami.example.net/api/send, derived from the configured script src. */
+  endpoint: string;
+  websiteId: string;
+  /** Only send when the current hostname is in this list. Omit to track on any hostname. */
+  domains?: string[];
+  excludeSearch?: boolean;
+  excludeHash?: boolean;
+  /** Suppress sending when the browser reports Do Not Track. Default true. */
+  respectDoNotTrack?: boolean;
+  privacyInfo?: TrackerPrivacyInfo;
+}
+
+export type TrackerAdapter = ScriptTrackerAdapter | UmamiApiTrackerAdapter;
 
 export interface PromptCopy {
   message: Localized;

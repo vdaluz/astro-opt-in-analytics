@@ -9,6 +9,8 @@ export type {
   ConsentDecision,
   ConsentRecord,
   PromptCopy,
+  ScriptTrackerAdapter,
   TrackerAdapter,
   TrackerPrivacyInfo,
+  UmamiApiTrackerAdapter,
 } from './lib/types';

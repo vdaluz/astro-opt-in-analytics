@@ -4,13 +4,13 @@
 
 Consent-first analytics for Astro. The tracker script does not exist on the page until the visitor says yes: no requests, no fingerprinting surface, nothing to block. An opt-in prompt asks once, the answer is remembered, and refusing is exactly as easy as accepting.
 
-Built for [Umami](https://umami.is) first, with a small adapter interface for other trackers. Ships raw `.astro` and `.ts` - the consuming app's Astro/Vite compiles them (no prebuild step). Proven in production on [vdaluz.com](https://vdaluz.com) and [imperfectsystems.com](https://imperfectsystems.com) - see [Consumers](#consumers).
+Built for [Umami](https://umami.is) first, with a small adapter interface for other trackers. Ships raw `.astro` and `.ts` - the consuming app's Astro/Vite compiles them (no prebuild step). Proven in production on vdaluz.com, imperfectsystems.com, and wq1k.com - see [Consumers](#consumers).
 
 ## Why opt-in
 
 Most "privacy-respecting analytics" setups still track by default and put the burden of blocking on the visitor. This package flips the default: tracking is off until a real yes. That costs you data. That is the point.
 
-- **Zero requests until consent.** The script tag is injected only after a stored grant. Denied or unanswered means it never exists.
+- **Zero requests until consent.** Trackers activate only after a stored grant. Denied or unanswered means no request ever fires.
 - **[Global Privacy Control](https://globalprivacycontrol.org/) is an answer.** `navigator.globalPrivacyControl === true` counts as a no. The prompt never shows; asking again would be its own dark pattern.
 - **Anti-dark-pattern by construction.** Equal-weight buttons, decline first in DOM order, Esc or dismissal means deny, no overlay, no scroll lock. These are hard-coded, not configurable.
 - **Changeable, both directions.** `openConsentPrompt()` (or any element with `data-open-analytics-prompt`) reopens the prompt, e.g. from a footer "Analytics preferences" link.
@@ -44,7 +44,7 @@ export const analytics = defineAnalyticsConfig({
   tracker: umami({
     src: 'https://umami.example.net/script.js',
     websiteId: '00000000-0000-0000-0000-000000000000',
-    extra: { 'data-exclude-search': 'true' },
+    excludeSearch: true,
   }),
   prompt: {
     message: 'Can I count your visit? Anonymous, cookieless, self-hosted analytics. No is a fine answer.',
@@ -111,7 +111,7 @@ This requires switching off Cloudflare's edge auto-injection for the zone (dashb
 
 ## Custom events
 
-`trackEvent(name, data?)` (from `./client`) reports a custom event to Umami, gated on live consent the same way the pageview tracker is: it no-ops when consent is denied, undecided, GPC applies, or the page has no Umami tracker (e.g. Cloudflare Beacon only - it has no custom-event API, so `trackEvent` is Umami-only by design). Consent is re-checked at call time, not at page load.
+`trackEvent(name, data?)` (from `./client`) reports a custom event directly to Umami's `/api/send`, gated on live consent the same way the pageview tracker is: it no-ops when consent is denied, undecided, GPC applies, or the page has no Umami tracker (e.g. Cloudflare Beacon only - it has no custom-event API, so `trackEvent` is Umami-only by design). Consent is re-checked at call time, not at page load.
 
 ### Affiliate click tracking
 
@@ -121,10 +121,14 @@ Harmless on pages with no affiliate links - the listener still binds (cheap, one
 
 ## How it works
 
-1. `ConsentGate` reads a versioned record from localStorage (`opt-in-analytics:consent`). Grant: the tracker `<script>` is injected. Anything else: nothing loads. `tracker` also accepts an array of adapters; one grant injects all of them (e.g. Umami plus a manually-installed Cloudflare Web Analytics beacon), and the prompt copy should disclose every tracker it covers.
+1. `ConsentGate` reads a versioned record from localStorage (`opt-in-analytics:consent`). Grant: every configured tracker activates - Umami by posting a pageview straight to `/api/send` (see [Why Umami skips the official script](#why-umami-skips-the-official-script)), anything else (e.g. Cloudflare Beacon) by injecting its `<script>` tag. Anything else: nothing loads. `tracker` also accepts an array of adapters; one grant activates all of them, and the prompt copy should disclose every tracker it covers.
 2. `ConsentPrompt` shows only when there is no decision and no GPC signal. The answer is stored as `{ v, decision, at }`.
 3. Bump `consentVersion` in your config when what you track changes; older stored decisions re-prompt.
-4. A denial after a grant applies from the next navigation (the already-loaded script is not surgically removed; nothing new ever loads).
+4. A denial after a grant applies from the next navigation (an already-active tracker is not torn down; nothing new ever activates).
+
+### Why Umami skips the official script
+
+Umami's own tracker script initializes by reading `document.currentScript` - the `<script>` element it's currently running from - to find its config attributes. That's `null` for a script this package injects dynamically after consent, so the official script silently never initializes: no error, no network request beyond the initial (harmless) script fetch. `umami()` sidesteps this by posting directly to Umami's documented [`/api/send`](https://docs.umami.is/docs/api/sending-stats) endpoint instead, reimplementing the parts of the official script this package needs (session-cache token, domain filtering, Do Not Track, search/hash stripping). `cloudflareBeacon()` has no such dependency and is unaffected - it still loads via an injected `<script>` tag.
 
 ## Styling
 
@@ -141,6 +145,8 @@ Without both, `PrivacyExplainer` still works functionally (it's sourced from you
 
 - [vdaluz.com](https://vdaluz.com)
 - [imperfectsystems.com](https://imperfectsystems.com)
+- [wq1k.com](https://wq1k.com)
+- [vicstradamus.com](https://vicstradamus.com) (Cloudflare Web Analytics only, via `cloudflareBeacon()`)
 
 ## Contributing
 

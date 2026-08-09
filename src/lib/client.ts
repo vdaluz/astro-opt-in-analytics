@@ -1,10 +1,12 @@
 import { gpcDenied, readConsent, writeConsent } from './consent.ts';
+import { createUmamiSender, type UmamiSender } from './umami-api.ts';
+import type { SerializedTracker } from './serialize-trackers.ts';
 import type { ConsentDecision } from './types';
 
 type ConsentState = 'gpc' | 'granted' | 'denied' | 'undecided';
 
 interface GateConfig {
-  attrs: Array<Record<string, string> & { src: string }>;
+  trackers: SerializedTracker[];
   version: number;
 }
 
@@ -36,17 +38,34 @@ function readGateConfig(): GateConfig | null {
   }
 }
 
-function injectTrackers(attrs: GateConfig['attrs']): void {
-  attrs.forEach((trackerAttrs, index) => {
-    const id = `${TRACKER_ELEMENT_ID}-${index}`;
-    if (document.getElementById(id)) return;
-    const script = document.createElement('script');
-    script.id = id;
-    for (const [name, value] of Object.entries(trackerAttrs)) {
-      if (name === 'src') script.src = value;
-      else script.setAttribute(name, value);
+function injectScriptTracker(attrs: Record<string, string> & { src: string }, id: string): void {
+  if (document.getElementById(id)) return;
+  const script = document.createElement('script');
+  script.id = id;
+  for (const [name, value] of Object.entries(attrs)) {
+    if (name === 'src') script.src = value;
+    else script.setAttribute(name, value);
+  }
+  document.head.appendChild(script);
+}
+
+/** One sender per umami-api tracker, reused across astro:page-load re-runs so its
+ * session-cache token and previous-URL/referrer state survive soft navigations. */
+const umamiSenders = new Map<string, UmamiSender>();
+
+function activateTrackers(trackers: SerializedTracker[]): void {
+  trackers.forEach((tracker, index) => {
+    if (tracker.kind === 'script') {
+      injectScriptTracker(tracker.attrs, `${TRACKER_ELEMENT_ID}-${index}`);
+      return;
     }
-    document.head.appendChild(script);
+    const key = tracker.config.endpoint + tracker.config.websiteId;
+    let sender = umamiSenders.get(key);
+    if (!sender) {
+      sender = createUmamiSender(tracker.config);
+      umamiSenders.set(key, sender);
+    }
+    sender.pageview();
   });
 }
 
@@ -74,7 +93,7 @@ export function bootConsentGate(): void {
 
   const stored = readConsent(localStorage, config.version);
   setState(stored ?? 'undecided');
-  if (stored === 'granted') injectTrackers(config.attrs);
+  if (stored === 'granted') activateTrackers(config.trackers);
 
   if (gateChooseListenerBound) return;
   gateChooseListenerBound = true;
@@ -83,14 +102,10 @@ export function bootConsentGate(): void {
     if (decision !== 'granted' && decision !== 'denied') return;
     writeConsent(localStorage, config.version, decision, new Date().toISOString());
     setState(decision);
-    if (decision === 'granted') injectTrackers(config.attrs);
+    if (decision === 'granted') activateTrackers(config.trackers);
     // A denial after the tracker already loaded applies from the next
     // navigation; nothing new is injected and the stored record now says no.
   });
-}
-
-interface WindowWithUmami extends Window {
-  umami?: { track: (name: string, data?: Record<string, string>) => void };
 }
 
 /** Pure decision extracted from trackEvent() so it's testable without a DOM. */
@@ -99,15 +114,14 @@ export function shouldTrack(state: ConsentState, hasUmami: boolean): boolean {
 }
 
 /**
- * Reports a custom event to Umami if consent is currently granted, no-ops otherwise
- * (denied, undecided, GPC, or no Umami tracker on this page - e.g. Cloudflare Beacon
- * only, which has no custom-event API). Consent is checked live via getState(), so a
- * decision made after this module loaded is picked up correctly.
+ * Reports a custom event to every active Umami tracker if consent is currently granted,
+ * no-ops otherwise (denied, undecided, GPC, or no Umami tracker on this page - e.g.
+ * Cloudflare Beacon only, which has no custom-event API). Consent is checked live via
+ * getState(), so a decision made after this module loaded is picked up correctly.
  */
 export function trackEvent(name: string, data?: Record<string, string>): void {
-  const umami = (window as WindowWithUmami).umami;
-  if (!shouldTrack(getState(), typeof umami?.track === 'function')) return;
-  umami!.track(name, data);
+  if (!shouldTrack(getState(), umamiSenders.size > 0)) return;
+  umamiSenders.forEach((sender) => sender.event(name, data));
 }
 
 const AFFILIATE_KEY_ATTR = 'data-affiliate-key';

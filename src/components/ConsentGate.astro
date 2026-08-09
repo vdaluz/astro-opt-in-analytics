@@ -1,4 +1,5 @@
 ---
+import { serializeTrackers } from '../lib/serialize-trackers';
 import type { AnalyticsConfig } from '../lib/types';
 
 interface Props {
@@ -11,7 +12,7 @@ const trackers = Array.isArray(config.tracker) ? config.tracker : [config.tracke
 
 // <-escaping keeps "</script>" inside attribute values from closing the JSON block.
 const payload = JSON.stringify({
-  attrs: trackers.map((t) => t.scriptAttributes),
+  trackers: serializeTrackers(trackers),
   version: config.consentVersion ?? 1,
 }).replace(/</g, '\\u003c');
 ---

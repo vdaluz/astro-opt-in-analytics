@@ -4,6 +4,14 @@ All notable changes to this project are documented here. Format loosely follows 
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-08-08
+
+### Changed
+
+- **Breaking:** `umami()` no longer injects the official Umami tracker script. That script gates its own init on `document.currentScript`, which is `null` for a script this package injects dynamically after consent - so it silently never initialized (confirmed live on vdaluz.com, imperfectsystems.com, and wq1k.com; real end-user traffic was still being tracked in practice, but the failure mode made the package untestable and would bite the moment that stopped being true). `umami()` now posts pageviews and events directly to Umami's documented `/api/send` endpoint instead, reimplementing the session-cache handshake, domain filtering, and Do Not Track handling the official script did internally.
+- `UmamiOptions`' free-form `extra` attribute bag is replaced with typed options: `domains?: string[]` (was `extra['data-domains']`, a comma-joined string), `excludeSearch?: boolean` (was `extra['data-exclude-search']`), `excludeHash?: boolean`, `respectDoNotTrack?: boolean` (default `true`, was `extra['data-do-not-track']`). Update any consumer config using `extra` on `umami()`.
+- `cloudflareBeacon()` is unchanged - it has no `document.currentScript` dependency and continues to load via an injected `<script>` tag.
+
 ## [0.6.0] - 2026-08-08
 
 ### Added
