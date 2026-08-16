@@ -33,5 +33,4 @@ npm-registry semver pins (not tarball URLs, since META-90) - see root `~/Repos/C
 - vdaluz.com (`src/config/analytics.ts`)
 - wq1k.com (`src/config/analytics.ts`)
 - freetoolbox.net (`src/config/analytics.ts`)
-- vicstradamus.com (`src/config/analytics.ts`, Cloudflare Beacon only)
 - vicstradamus.com (`src/config/analytics.ts`, `cloudflareBeacon()` only)
