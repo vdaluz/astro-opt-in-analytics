@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repo is
 
-`@vdaluz/astro-opt-in-analytics`: consent-first analytics for Astro sites. An opt-in prompt, a consent gate, tracker adapters (`umami`, `cloudflareBeacon`), and a `PrivacyExplainer` component that renders a `/privacy` page's substantive copy straight from the tracker config. Trackers activate only after an explicit stored grant; denied, unanswered, or a Global Privacy Control signal means zero requests. Consumed by vdaluz.com, imperfectsystems.com, wq1k.com, and vicstradamus.com (Cloudflare Beacon only) as a pinned https-tarball dependency.
+`@vdaluz/astro-opt-in-analytics`: consent-first analytics for Astro sites. An opt-in prompt, a consent gate, tracker adapters (`umami`, `cloudflareBeacon`), and a `PrivacyExplainer` component that renders a `/privacy` page's substantive copy straight from the tracker config. Trackers activate only after an explicit stored grant; denied, unanswered, or a Global Privacy Control signal means zero requests. Consumed by vdaluz.com, imperfectsystems.com, wq1k.com, freetoolbox.net, and vicstradamus.com (Cloudflare Beacon only) as an npm-registry semver pin.
 
 ## Workflow
 
@@ -23,12 +23,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Release process
 
-Same tag-pinned-tarball process shared by all `@vdaluz/*` component libraries — see root
-`~/Repos/CLAUDE.md` → "Astro shared-library release process".
+Same tag-then-npm-publish process shared by all `@vdaluz/*` component libraries, consumed via
+npm-registry semver pins (not tarball URLs, since META-90) - see root `~/Repos/CLAUDE.md` →
+"Astro shared-library release process".
 
 ## Consumers
 
 - imperfectsystems.com (`src/config/analytics.ts`)
 - vdaluz.com (`src/config/analytics.ts`)
 - wq1k.com (`src/config/analytics.ts`)
+- freetoolbox.net (`src/config/analytics.ts`)
+- vicstradamus.com (`src/config/analytics.ts`, Cloudflare Beacon only)
 - vicstradamus.com (`src/config/analytics.ts`, `cloudflareBeacon()` only)
