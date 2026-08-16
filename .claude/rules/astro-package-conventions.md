@@ -1,0 +1,1 @@
+/Users/vic/.claude/rules/astro-package-conventions.md

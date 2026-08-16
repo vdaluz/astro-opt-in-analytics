@@ -12,8 +12,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Conventions
 
-- **Raw source, no build step.** Ships `.ts` and `.astro` from `src/`; the consuming app's Astro/Vite compiles them. Never add a build/dist step or `main` field.
-- **Per-path exports.** Components are exposed via the `exports` map in `package.json` (`./ConsentGate.astro`, `./ConsentPrompt.astro`, `./PrivacyExplainer.astro`, `./client`). New public files need an exports entry.
+Shared `@vdaluz/astro-*` conventions (raw source/no build step, per-path exports):
+`.claude/rules/astro-package-conventions.md`. This package's exports map:
+`./ConsentGate.astro`, `./ConsentPrompt.astro`, `./PrivacyExplainer.astro`, `./client`.
+
 - **`TrackerPrivacyInfo` is optional metadata, not injection config.** `privacyInfo` on a `TrackerAdapter` only feeds `PrivacyExplainer`'s "tools behind it" list - `ConsentGate.astro` never serializes it into the client-side payload, so this field must never affect what loads on the page.
 - **`umami()` does not inject a script tag.** It posts directly to Umami's `/api/send` (see README's "Why Umami skips the official script") because the official script's `document.currentScript`-based init is null for a dynamically-inserted script and it silently no-ops. `cloudflareBeacon()` still injects a real `<script>` tag - the two adapter kinds are genuinely different (`TrackerAdapter` is a discriminated union, `kind: 'script' | 'umami-api'`), not just different config for the same mechanism.
 - **Token-driven styling.** The prompt reads only these CSS custom properties, same contract as @vdaluz/astro-blog: `--surface`, `--fg`, `--border`, `--accent`, `--on-accent`, with values as **R G B channel triplets** consumed via `rgb(var(--name, fallback))`. Never use whole-color var() values (a triplet resolves to an invalid color and the declaration is silently dropped) and never hardcode site colors beyond the fallback triplets.
