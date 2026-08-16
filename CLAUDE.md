@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Workflow
 
-**No worktrees.** Work directly on `main` - this repo is small, single-maintainer, and worked sequentially. Consumers only ever see tagged releases, so `main` is safe to iterate on.
+Shared preamble: `.claude/rules/git-workflow-direct-to-main.md`.
 
 ## Conventions
 

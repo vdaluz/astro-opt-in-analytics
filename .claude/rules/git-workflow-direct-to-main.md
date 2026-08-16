@@ -1,0 +1,1 @@
+/Users/vic/.claude/rules/git-workflow-direct-to-main.md
