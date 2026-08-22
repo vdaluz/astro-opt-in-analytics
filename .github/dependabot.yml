@@ -1,0 +1,46 @@
+# Dependabot version updates
+# https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+#
+# Security advisories are configured separately (Dependabot alerts / security updates in repo settings).
+# This file controls scheduled version bumps and PR behavior.
+
+version: 2
+
+updates:
+  - package-ecosystem: npm
+    directory: '/'
+    schedule:
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: Etc/UTC
+    groups:
+      npm_and_yarn:
+        patterns:
+          - '*'
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: chore
+      include: scope
+    # @astrojs/check (even latest, 0.9.10) peer-depends on typescript ^5.0.0 || ^6.0.0 -
+    # a TS7 bump breaks `astro check` until @astrojs/check adds support.
+    ignore:
+      - dependency-name: 'typescript'
+        update-types:
+          - 'version-update:semver-major'
+
+  - package-ecosystem: github-actions
+    directory: '/'
+    schedule:
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: Etc/UTC
+    groups:
+      github-actions:
+        patterns:
+          - '*'
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: chore
+      include: scope
