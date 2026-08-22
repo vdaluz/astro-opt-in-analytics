@@ -1,6 +1,8 @@
 # @vdaluz/astro-opt-in-analytics
 
+[![npm version](https://img.shields.io/npm/v/@vdaluz/astro-opt-in-analytics.svg)](https://www.npmjs.com/package/@vdaluz/astro-opt-in-analytics)
 [![CI](https://github.com/vdaluz/astro-opt-in-analytics/actions/workflows/ci.yml/badge.svg)](https://github.com/vdaluz/astro-opt-in-analytics/actions/workflows/ci.yml)
+[![license](https://img.shields.io/npm/l/@vdaluz/astro-opt-in-analytics.svg)](LICENSE)
 
 Consent-first analytics for Astro. The tracker script does not exist on the page until the visitor says yes: no requests, no fingerprinting surface, nothing to block. An opt-in prompt asks once, the answer is remembered, and refusing is exactly as easy as accepting.
 
@@ -20,17 +22,6 @@ Most "privacy-respecting analytics" setups still track by default and put the bu
 ```
 npm install @vdaluz/astro-opt-in-analytics
 ```
-
-Alternatively, a pinned https tarball from a tag works too, with no registry involved:
-
-```jsonc
-// package.json
-"dependencies": {
-  "@vdaluz/astro-opt-in-analytics": "https://github.com/vdaluz/astro-opt-in-analytics/archive/refs/tags/v0.6.0.tar.gz"
-}
-```
-
-> **Why a tarball, not `github:...`?** npm canonicalizes GitHub shorthand to `git+ssh://` in the lockfile, and CI runners without SSH keys fail to clone it. The archive URL is anonymous https with an integrity hash. Bump the tag in the URL to upgrade.
 
 Peer dependency: `astro` >= 6.
 
@@ -141,16 +132,17 @@ The prompt reads CSS custom properties with sensible dark fallbacks: `--surface`
 
 Without both, `PrivacyExplainer` still works functionally (it's sourced from your live config, so it can't drift from what's actually injected) but renders as unstyled text.
 
+## Contributing
+
+Issues welcome. PRs by discussion - open an issue first for anything beyond a typo or docs fix.
+
 ## Consumers
 
 - [vdaluz.com](https://vdaluz.com)
 - [imperfectsystems.com](https://imperfectsystems.com)
 - [wq1k.com](https://wq1k.com)
+- [freetoolbox.net](https://freetoolbox.net)
 - [vicstradamus.com](https://vicstradamus.com) (Cloudflare Web Analytics only, via `cloudflareBeacon()`)
-
-## Contributing
-
-Issues welcome. PRs by discussion - open an issue first for anything beyond a typo or docs fix.
 
 ## License
 

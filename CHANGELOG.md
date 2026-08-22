@@ -4,6 +4,21 @@ All notable changes to this project are documented here. Format loosely follows 
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-08-22
+
+### Fixed
+
+- README Consumers list was missing freetoolbox.net, which already depends on and uses the package.
+- Added `"sideEffects": false` to `package.json`, matching the other four `@vdaluz/astro-*` packages - every module's DOM/script-injecting code is gated behind an explicit function call (`bootConsentGate`, `bootConsentPrompt`), never run at import time, so this is safe for bundler tree-shaking.
+
+### Removed
+
+- Dropped the tarball-install alternative from the README - every consumer moved to npm-registry semver pins, and the tarball block's hardcoded version tag had drifted from the published version.
+
+### Documentation
+
+- Added npm version and license badges. Standardized the README's tail-section order (Contributing, Consumers, License).
+
 ## [0.7.0] - 2026-08-08
 
 ### Changed
