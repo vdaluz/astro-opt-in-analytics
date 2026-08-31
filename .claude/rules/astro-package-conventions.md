@@ -1,3 +1,10 @@
+---
+paths:
+  - "package.json"
+  - "astro.config.*"
+  - "src/**"
+---
+
 <!-- Synced by hand across the @vdaluz/astro-* package family - not generated or symlinked. -->
 
 ## Shared @vdaluz/astro-* package conventions
