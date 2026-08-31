@@ -7,10 +7,13 @@ All notable changes to this project are documented here. Format loosely follows 
 ### Added
 
 - `consentMaxAgeDays` config option (default 365): a stored consent decision now expires and re-prompts the visitor after this many days, matching EU regulator guidance that consent has a shelf life. Applies to a decline too, not just a grant. Set `0` or `Infinity` to disable expiry entirely. In practice this affects nothing yet - the package shipped roughly 3 months ago, so no stored decision is anywhere near a year old.
+- `PrivacyExplainer` accepts a new `strings?: Partial<PrivacyExplainerStrings>` prop - every heading, body, and bullet it renders can now be overridden (e.g. for a fourth locale, or to correct a claim the built-in copy can't know about your setup). `PrivacyExplainerStrings` is exported for typing your overrides.
+- `TrackerPrivacyInfo` gained an optional `collects?: Localized[]` field, rendered as a trailing "Also collects: ..." clause on that tool's entry in the "tools behind it" list - lets a custom tracker disclose data points beyond the package-wide baseline. Neither bundled adapter sets a default value for it (see Fixed, below, for why `umami()` doesn't need one).
 
 ### Fixed
 
 - `bootConsentGate()` evaluated the bare `localStorage` global directly, outside `readConsent`/`writeConsent`'s own throw-handling. In any browser with cookies/site data blocked (and some sandboxed iframes), merely reading `window.localStorage` throws a `SecurityError` before either function is entered - the gate died with an uncaught exception, `data-oia-state` was never stamped, and the affiliate-click listener never bound. A new `safeStorage()` helper now guards that access; when storage is inaccessible the gate still works, just un-persisted - the decision applies for the current page view only, then the visitor is asked again next time.
+- `PrivacyExplainer`'s default "what's collected" copy claimed the visit is counted as "the page you viewed, the referring site, and a general device/browser type. That's it." - but the `umami()` adapter's sender also reports browser language and screen resolution, neither of which was disclosed. The default copy now names both. **This changes the rendered text on any site using `PrivacyExplainer` with its default strings**, not just new installs.
 
 ## [0.8.0] - 2026-08-31
 

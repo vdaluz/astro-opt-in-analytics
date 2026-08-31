@@ -18,6 +18,11 @@ test('umami() adapter carries endpoint/websiteId and defaults respectDoNotTrack 
   assert.equal(tracker.respectDoNotTrack, true);
 });
 
+test('umami() adapter default privacyInfo has no collects override - the corrected whatsCollectedBody already discloses it', () => {
+  const tracker = umami(BASE_OPTIONS);
+  assert.equal(tracker.privacyInfo?.collects, undefined);
+});
+
 test('umami() adapter passes through domains/excludeSearch/excludeHash', () => {
   const tracker = umami({
     src: 'https://umami.example.net/script.js',

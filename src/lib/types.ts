@@ -9,6 +9,9 @@ export interface TrackerPrivacyInfo {
   learnMoreUrl: string;
   /** Optional trailing clause describing this specific deployment, e.g. "that I run myself, on my own infrastructure." */
   description?: Localized;
+  /** Additional data points this specific tracker collects, rendered as a trailing
+   * clause in PrivacyExplainer's "tools behind it" list for this tool. */
+  collects?: Localized[];
 }
 
 /** A tracker whose init/tracking happens by injecting a `<script>` tag (e.g. Cloudflare Beacon). */

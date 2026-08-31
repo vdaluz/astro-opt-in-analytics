@@ -14,3 +14,4 @@ export type {
   TrackerPrivacyInfo,
   UmamiApiTrackerAdapter,
 } from './lib/types';
+export type { PrivacyExplainerStrings } from './lib/privacy-explainer-strings';

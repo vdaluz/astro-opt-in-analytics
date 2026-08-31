@@ -86,7 +86,9 @@ import { analytics } from '../config/analytics';
 </Layout>
 ```
 
-The "tools behind it" list only shows trackers that carry a `privacyInfo` field. Both bundled adapters set a sensible default - `umami()` points at [umami.is/privacy](https://umami.is/privacy), `cloudflareBeacon()` at [cloudflare.com/web-analytics](https://www.cloudflare.com/web-analytics/) - override `privacyInfo` per adapter call to customize the label or add a `description` clause about your specific deployment (e.g. "that I run myself, on my own infrastructure"). A tracker with no `privacyInfo` is simply omitted from the list.
+The "tools behind it" list only shows trackers that carry a `privacyInfo` field. Both bundled adapters set a sensible default - `umami()` points at [umami.is/privacy](https://umami.is/privacy), `cloudflareBeacon()` at [cloudflare.com/web-analytics](https://www.cloudflare.com/web-analytics/) - override `privacyInfo` per adapter call to customize the label or add a `description` clause about your specific deployment (e.g. "that I run myself, on my own infrastructure"). A tracker with no `privacyInfo` is simply omitted from the list. `privacyInfo.collects?: Localized[]` renders as a trailing "Also collects: ..." clause on that tool's own entry - use it for a custom tracker whose payload includes something beyond the package-wide baseline (the bundled adapters don't set one: `umami()`'s specifics are already covered by the default "what's collected" copy below, and `cloudflareBeacon()`'s internal payload isn't something this package can verify).
+
+Every other string `PrivacyExplainer` renders - headings, the "what's collected" body and bullets, the GPC/reopen copy - can be overridden with a `strings` prop typed against the exported `PrivacyExplainerStrings`: `<PrivacyExplainer config={analytics} strings={{ whatsCollectedBody: { default: '...' } }} />`. Each key is replaced wholesale (not deep-merged), so pass a full `Localized` value for any key you override. Use this to add a fourth locale, or to correct a claim the built-in copy can't know about your specific setup.
 
 ## Cloudflare Web Analytics
 
