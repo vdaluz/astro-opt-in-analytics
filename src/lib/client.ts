@@ -195,22 +195,34 @@ export function openConsentPrompt(): void {
 }
 
 /**
- * 'bar' placement is a full-width fixed bar at the bottom of the viewport, which the
- * browser's default scroll-into-view does not account for - tabbing to an in-article
- * or footer link that lands in that band would otherwise focus a hidden element (SC
- * 2.4.11). Reserve that space via scroll-padding-bottom while the bar is visible;
- * clear it once answered so the page reclaims the full scroll range. No-op for
- * 'corner' placement, which never covers enough of the viewport to need this.
+ * The prompt is fixed to the bottom of the viewport in every placement ('bar' full-
+ * width, 'corner' bottom-right, the <=640px mobile sheet), which the browser's default
+ * scroll-into-view does not account for - tabbing to an in-article or footer link that
+ * lands behind it would otherwise focus a hidden element (SC 2.4.11). Reserve that
+ * space via scroll-padding-bottom while the prompt is visible; clear it once answered
+ * so the page reclaims the full scroll range.
+ *
+ * Height alone under-reserves for 'corner': it sits inset-block-end: 1rem, not flush
+ * with the viewport edge like 'bar', so its occluded band starts 1rem higher than its
+ * height alone would suggest. Add the computed inset-block-end to cover that gap - 0
+ * for 'bar' and the mobile sheet, so this is a no-op change for both.
+ *
+ * Read inset-block-end via getComputedStyle rather than deriving it from the rect,
+ * because the entrance animation (@starting-style + translateY) can still be mid-
+ * transition when this runs in a requestAnimationFrame - getBoundingClientRect()
+ * includes the transform, so a rect-derived measurement taken then would under-
+ * reserve permanently. The computed inset-block-end isn't affected by the transform.
  */
-function applyBarScrollPadding(prompt: HTMLElement, visible: boolean): void {
-  if (prompt.dataset.placement !== 'bar') return;
+function applyPromptScrollPadding(prompt: HTMLElement, visible: boolean): void {
   const root = document.documentElement;
   if (!visible) {
     root.style.scrollPaddingBottom = '';
     return;
   }
   requestAnimationFrame(() => {
-    root.style.scrollPaddingBottom = `${prompt.getBoundingClientRect().height}px`;
+    const height = prompt.getBoundingClientRect().height;
+    const inset = parseFloat(getComputedStyle(prompt).insetBlockEnd) || 0;
+    root.style.scrollPaddingBottom = `${height + inset}px`;
   });
 }
 
@@ -230,7 +242,7 @@ function scheduleMobileReveal(prompt: HTMLElement): void {
     clearTimeout(timer);
     pendingMobileReveal = null;
     prompt.hidden = false;
-    applyBarScrollPadding(prompt, true);
+    applyPromptScrollPadding(prompt, true);
   };
   window.addEventListener('scroll', reveal, { once: true, passive: true });
   const timer = window.setTimeout(reveal, MOBILE_DEFER_MS);
@@ -259,7 +271,7 @@ export function bootConsentPrompt(): void {
   const choose = (decision: ConsentDecision): void => {
     document.dispatchEvent(new CustomEvent(CHOOSE_EVENT, { detail: decision }));
     prompt.hidden = true;
-    applyBarScrollPadding(prompt, false);
+    applyPromptScrollPadding(prompt, false);
   };
 
   prompt.querySelector('[data-oia-accept]')?.addEventListener('click', () => choose('granted'));
@@ -276,7 +288,7 @@ export function bootConsentPrompt(): void {
       const current = document.getElementById(PROMPT_ELEMENT_ID);
       if (!current || getState() === 'gpc') return;
       current.hidden = false;
-      applyBarScrollPadding(current, true);
+      applyPromptScrollPadding(current, true);
       (current.querySelector('[data-oia-decline]') as HTMLElement | null)?.focus();
     });
 
@@ -298,6 +310,6 @@ export function bootConsentPrompt(): void {
     scheduleMobileReveal(prompt);
   } else {
     prompt.hidden = false;
-    applyBarScrollPadding(prompt, true);
+    applyPromptScrollPadding(prompt, true);
   }
 }
