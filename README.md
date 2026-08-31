@@ -137,6 +137,21 @@ Without both, `PrivacyExplainer` still works functionally (it's sourced from you
 
 Issues welcome. PRs by discussion - open an issue first for anything beyond a typo or docs fix.
 
+### Releasing
+
+Maintainer-only. Releases are tag-triggered and published to npm via GitHub Actions (Trusted
+Publishing / OIDC, no token secret):
+
+1. Test before tagging: `npm pack`, install the tarball into a scratch Astro app (or a consumer
+   locally), `astro check && astro build`.
+2. Bump `version` in `package.json`, commit.
+3. Tag `vX.Y.Z` and push the tag. Pushing the tag runs `.github/workflows/publish.yml`, which
+   type-checks, tests, verifies the tag matches `package.json`'s version, and only then runs
+   `npm publish`.
+4. Confirm the version is live: `npm view @vdaluz/astro-opt-in-analytics version`. Consumers bump
+   their own semver pin once it's confirmed live - see this package's CHANGELOG.md for what
+   changed.
+
 ## Consumers
 
 - [vdaluz.com](https://vdaluz.com)

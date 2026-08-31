@@ -26,8 +26,8 @@ Shared `@vdaluz/astro-*` conventions (raw source/no build step, per-path exports
 ## Release process
 
 Same tag-then-npm-publish process shared by all `@vdaluz/*` component libraries, consumed via
-npm-registry semver pins (not tarball URLs, since META-90) - see root `~/Repos/CLAUDE.md` →
-"Astro shared-library release process".
+npm-registry semver pins (not tarball URLs). See the README's "Releasing" section for the
+concrete steps.
 
 ## Consumers
 
