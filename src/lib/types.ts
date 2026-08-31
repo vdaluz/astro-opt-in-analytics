@@ -56,6 +56,14 @@ export interface AnalyticsConfig {
   prompt: PromptCopy;
   /** Bump when what you track changes; stored decisions from older versions re-prompt. */
   consentVersion?: number;
+  /**
+   * Days after which a stored consent decision expires and re-prompts, matching
+   * EU regulator guidance that consent has a shelf life (CNIL: 6 months typical,
+   * EDPB/most DPAs: 12-13 months upper bound). Default 365. Set 0 or Infinity to
+   * disable expiry entirely. Applies uniformly to both granted and denied
+   * decisions - an old decline re-prompts too.
+   */
+  consentMaxAgeDays?: number;
 }
 
 export type ConsentDecision = 'granted' | 'denied';

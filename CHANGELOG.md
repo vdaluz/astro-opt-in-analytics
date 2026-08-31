@@ -4,6 +4,10 @@ All notable changes to this project are documented here. Format loosely follows 
 
 ## [Unreleased]
 
+### Added
+
+- `consentMaxAgeDays` config option (default 365): a stored consent decision now expires and re-prompts the visitor after this many days, matching EU regulator guidance that consent has a shelf life. Applies to a decline too, not just a grant. Set `0` or `Infinity` to disable expiry entirely. In practice this affects nothing yet - the package shipped roughly 3 months ago, so no stored decision is anywhere near a year old.
+
 ### Fixed
 
 - `bootConsentGate()` evaluated the bare `localStorage` global directly, outside `readConsent`/`writeConsent`'s own throw-handling. In any browser with cookies/site data blocked (and some sandboxed iframes), merely reading `window.localStorage` throws a `SecurityError` before either function is entered - the gate died with an uncaught exception, `data-oia-state` was never stamped, and the affiliate-click listener never bound. A new `safeStorage()` helper now guards that access; when storage is inaccessible the gate still works, just un-persisted - the decision applies for the current page view only, then the visitor is asked again next time.

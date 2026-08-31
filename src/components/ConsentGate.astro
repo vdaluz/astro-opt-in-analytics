@@ -10,10 +10,16 @@ const { config } = Astro.props;
 
 const trackers = Array.isArray(config.tracker) ? config.tracker : [config.tracker];
 
+// JSON.stringify silently turns Infinity into null - normalize to 0 first so
+// the wire payload's maxAgeDays is always a genuine finite number, matching
+// GateConfig's type in client.ts.
+const maxAgeDays = config.consentMaxAgeDays ?? 365;
+
 // <-escaping keeps "</script>" inside attribute values from closing the JSON block.
 const payload = JSON.stringify({
   trackers: serializeTrackers(trackers),
   version: config.consentVersion ?? 1,
+  maxAgeDays: Number.isFinite(maxAgeDays) ? maxAgeDays : 0,
 }).replace(/</g, '\\u003c');
 ---
 

@@ -116,6 +116,7 @@ Harmless on pages with no affiliate links - the listener still binds (cheap, one
 2. `ConsentPrompt` shows only when there is no decision and no GPC signal. The answer is stored as `{ v, decision, at }`.
 3. Bump `consentVersion` in your config when what you track changes; older stored decisions re-prompt.
 4. A denial after a grant applies from the next navigation (an already-active tracker is not torn down; nothing new ever activates).
+5. Stored consent expires after `consentMaxAgeDays` (default 365) and re-prompts the visitor - applies to a decline too, not just a grant. Set `0` or `Infinity` to disable expiry entirely.
 
 ### Why Umami skips the official script
 

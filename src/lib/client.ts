@@ -8,6 +8,7 @@ type ConsentState = 'gpc' | 'granted' | 'denied' | 'undecided';
 interface GateConfig {
   trackers: SerializedTracker[];
   version: number;
+  maxAgeDays: number;
 }
 
 const CONFIG_ELEMENT_ID = 'oia-config';
@@ -109,7 +110,7 @@ export function bootConsentGate(): void {
   bindAffiliateClickTracking();
 
   const storage = safeStorage();
-  const stored = storage ? readConsent(storage, config.version) : null;
+  const stored = storage ? readConsent(storage, config.version, config.maxAgeDays) : null;
   setState(stored ?? 'undecided');
   if (stored === 'granted') activateTrackers(config.trackers);
 

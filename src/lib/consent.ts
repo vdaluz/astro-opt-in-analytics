@@ -7,16 +7,24 @@ export const CONSENT_STORAGE_KEY = 'opt-in-analytics:consent';
 
 export function readConsent(
   storage: Pick<Storage, 'getItem'>,
-  version: number
+  version: number,
+  maxAgeDays: number = 365
 ): ConsentDecision | null {
   try {
     const raw = storage.getItem(CONSENT_STORAGE_KEY);
     if (!raw) return null;
     const record = JSON.parse(raw) as Partial<ConsentRecord>;
     if (record.v !== version) return null;
-    return record.decision === 'granted' || record.decision === 'denied'
-      ? record.decision
-      : null;
+    if (record.decision !== 'granted' && record.decision !== 'denied') return null;
+
+    // Number.isFinite rejects 0, Infinity, NaN, and a null that slipped through
+    // from JSON (Infinity round-trips to null) - all of those mean "no expiry".
+    if (Number.isFinite(maxAgeDays) && maxAgeDays > 0) {
+      const at = record.at ? Date.parse(record.at) : NaN;
+      if (Number.isNaN(at) || Date.now() - at > maxAgeDays * 86_400_000) return null;
+    }
+
+    return record.decision;
   } catch {
     return null;
   }
