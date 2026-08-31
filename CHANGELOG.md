@@ -4,6 +4,12 @@ All notable changes to this project are documented here. Format loosely follows 
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-08-31
+
+### Added
+
+- `ConsentPrompt` accepts a new optional `placement?: 'corner' | 'bar'` prop (default `'corner'` - no behavior change for existing consumers). `'bar'` renders a full-width bottom bar above 640px for sites whose centered article column leaves no gutter wide enough for the corner card (message left, two equal-width buttons right), scoped so it never overrides the existing sub-640px mobile sheet. While a `'bar'`-placement prompt is visible, `scroll-padding-bottom` is set on the document root to its measured height so keyboard focus landing on an occluded in-page link scrolls it into view above the bar (SC 2.4.11) - cleared once the prompt is answered or dismissed.
+
 ## [0.7.1] - 2026-08-22
 
 ### Fixed

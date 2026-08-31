@@ -175,6 +175,26 @@ export function openConsentPrompt(): void {
   document.dispatchEvent(new CustomEvent(OPEN_PROMPT_EVENT));
 }
 
+/**
+ * 'bar' placement is a full-width fixed bar at the bottom of the viewport, which the
+ * browser's default scroll-into-view does not account for - tabbing to an in-article
+ * or footer link that lands in that band would otherwise focus a hidden element (SC
+ * 2.4.11). Reserve that space via scroll-padding-bottom while the bar is visible;
+ * clear it once answered so the page reclaims the full scroll range. No-op for
+ * 'corner' placement, which never covers enough of the viewport to need this.
+ */
+function applyBarScrollPadding(prompt: HTMLElement, visible: boolean): void {
+  if (prompt.dataset.placement !== 'bar') return;
+  const root = document.documentElement;
+  if (!visible) {
+    root.style.scrollPaddingBottom = '';
+    return;
+  }
+  requestAnimationFrame(() => {
+    root.style.scrollPaddingBottom = `${prompt.getBoundingClientRect().height}px`;
+  });
+}
+
 let promptDocumentListenersBound = false;
 let pendingMobileReveal: (() => void) | null = null;
 
@@ -191,6 +211,7 @@ function scheduleMobileReveal(prompt: HTMLElement): void {
     clearTimeout(timer);
     pendingMobileReveal = null;
     prompt.hidden = false;
+    applyBarScrollPadding(prompt, true);
   };
   window.addEventListener('scroll', reveal, { once: true, passive: true });
   const timer = window.setTimeout(reveal, MOBILE_DEFER_MS);
@@ -219,6 +240,7 @@ export function bootConsentPrompt(): void {
   const choose = (decision: ConsentDecision): void => {
     document.dispatchEvent(new CustomEvent(CHOOSE_EVENT, { detail: decision }));
     prompt.hidden = true;
+    applyBarScrollPadding(prompt, false);
   };
 
   prompt.querySelector('[data-oia-accept]')?.addEventListener('click', () => choose('granted'));
@@ -235,6 +257,7 @@ export function bootConsentPrompt(): void {
       const current = document.getElementById(PROMPT_ELEMENT_ID);
       if (!current || getState() === 'gpc') return;
       current.hidden = false;
+      applyBarScrollPadding(current, true);
       (current.querySelector('[data-oia-decline]') as HTMLElement | null)?.focus();
     });
 
@@ -256,5 +279,6 @@ export function bootConsentPrompt(): void {
     scheduleMobileReveal(prompt);
   } else {
     prompt.hidden = false;
+    applyBarScrollPadding(prompt, true);
   }
 }

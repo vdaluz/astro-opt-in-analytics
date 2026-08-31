@@ -5,10 +5,13 @@ import { resolveLocalized } from '../lib/i18n';
 interface Props {
   config: AnalyticsConfig;
   locale?: string;
+  /** 'corner' (default) docks bottom-right; 'bar' is a full-width bottom bar for
+   * sites whose article column leaves no gutter wide enough for a corner card. */
+  placement?: 'corner' | 'bar';
 }
 
 const { prompt } = Astro.props.config;
-const { locale } = Astro.props;
+const { locale, placement = 'corner' } = Astro.props;
 
 // The UX constraints here are deliberate and not configurable: equal-weight
 // buttons, decline first in DOM order, dismissal means deny, no overlay, no
@@ -19,28 +22,37 @@ const accept = resolveLocalized(prompt.accept, locale);
 const decline = resolveLocalized(prompt.decline, locale);
 ---
 
-<div id="oia-prompt" role="dialog" aria-label={label} aria-live="polite" hidden>
-  <div class="oia-body">
-    <svg
-      class="oia-icon"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <line x1="6" y1="20" x2="6" y2="12"></line>
-      <line x1="12" y1="20" x2="12" y2="4"></line>
-      <line x1="18" y1="20" x2="18" y2="14"></line>
-    </svg>
-    <p class="oia-message">{message}</p>
-  </div>
-  <div class="oia-actions">
-    <button type="button" data-oia-decline>{decline}</button>
-    <button type="button" data-oia-accept>{accept}</button>
+<div
+  id="oia-prompt"
+  data-placement={placement}
+  role="dialog"
+  aria-label={label}
+  aria-live="polite"
+  hidden
+>
+  <div class="oia-inner">
+    <div class="oia-body">
+      <svg
+        class="oia-icon"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <line x1="6" y1="20" x2="6" y2="12"></line>
+        <line x1="12" y1="20" x2="12" y2="4"></line>
+        <line x1="18" y1="20" x2="18" y2="14"></line>
+      </svg>
+      <p class="oia-message">{message}</p>
+    </div>
+    <div class="oia-actions">
+      <button type="button" data-oia-decline>{decline}</button>
+      <button type="button" data-oia-accept>{accept}</button>
+    </div>
   </div>
 </div>
 
@@ -100,6 +112,44 @@ const decline = resolveLocalized(prompt.decline, locale);
       max-width: none;
       width: 100%;
       border-radius: 0.75rem 0.75rem 0 0;
+    }
+  }
+
+  /* 'bar' placement: a full-width bottom bar, scoped to >=641px so it never
+     overrides the >=640px mobile sheet above (media queries add no
+     specificity of their own - both rules are otherwise equally specific). */
+  @media (min-width: 641px) {
+    #oia-prompt[data-placement='bar'] {
+      inset-inline: 0;
+      inset-block-end: 0;
+      max-width: none;
+      width: 100%;
+      padding: 0;
+      border-inline: none;
+      border-radius: 0;
+    }
+
+    #oia-prompt[data-placement='bar'] .oia-inner {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      max-width: 64rem;
+      margin-inline: auto;
+      padding: 1rem 1.5rem;
+    }
+
+    #oia-prompt[data-placement='bar'] .oia-body {
+      flex: 1 1 auto;
+      margin: 0;
+    }
+
+    #oia-prompt[data-placement='bar'] .oia-actions {
+      flex: 0 0 auto;
+    }
+
+    #oia-prompt[data-placement='bar'] .oia-actions button {
+      flex: 0 0 auto;
+      min-width: 8rem;
     }
   }
 
