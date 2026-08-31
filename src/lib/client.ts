@@ -72,6 +72,23 @@ function activateTrackers(trackers: SerializedTracker[]): void {
 let gateChooseListenerBound = false;
 
 /**
+ * Merely reading `window.localStorage` throws a SecurityError in some
+ * cookie/site-data-blocked browsers and sandboxed iframes - before any of
+ * `Storage`'s own methods are called. `readConsent`/`writeConsent` already
+ * swallow throws from `getItem`/`setItem`, but that protection never runs if
+ * the caller's own `localStorage` reference throws first. Returns null in
+ * that case, treated as "no persistence, decision applies for this page view
+ * only" - the behaviour `writeConsent`'s own catch comment already promises.
+ */
+export function safeStorage(): Storage | null {
+  try {
+    return window.localStorage;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Boot the consent gate. Re-run on every astro:page-load (see ConsentGate.astro) so a
  * ClientRouter navigation re-stamps state and re-injects the tracker for the new page;
  * a document-level CHOOSE_EVENT listener only needs binding once since `document` itself
@@ -91,7 +108,8 @@ export function bootConsentGate(): void {
 
   bindAffiliateClickTracking();
 
-  const stored = readConsent(localStorage, config.version);
+  const storage = safeStorage();
+  const stored = storage ? readConsent(storage, config.version) : null;
   setState(stored ?? 'undecided');
   if (stored === 'granted') activateTrackers(config.trackers);
 
@@ -100,7 +118,7 @@ export function bootConsentGate(): void {
   document.addEventListener(CHOOSE_EVENT, (event) => {
     const decision = (event as CustomEvent<ConsentDecision>).detail;
     if (decision !== 'granted' && decision !== 'denied') return;
-    writeConsent(localStorage, config.version, decision, new Date().toISOString());
+    if (storage) writeConsent(storage, config.version, decision, new Date().toISOString());
     setState(decision);
     if (decision === 'granted') activateTrackers(config.trackers);
     // A denial after the tracker already loaded applies from the next

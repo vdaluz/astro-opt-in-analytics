@@ -4,6 +4,10 @@ All notable changes to this project are documented here. Format loosely follows 
 
 ## [Unreleased]
 
+### Fixed
+
+- `bootConsentGate()` evaluated the bare `localStorage` global directly, outside `readConsent`/`writeConsent`'s own throw-handling. In any browser with cookies/site data blocked (and some sandboxed iframes), merely reading `window.localStorage` throws a `SecurityError` before either function is entered - the gate died with an uncaught exception, `data-oia-state` was never stamped, and the affiliate-click listener never bound. A new `safeStorage()` helper now guards that access; when storage is inaccessible the gate still works, just un-persisted - the decision applies for the current page view only, then the visitor is asked again next time.
+
 ## [0.8.0] - 2026-08-31
 
 ### Added
