@@ -1,4 +1,4 @@
-import type { ConsentDecision, ConsentRecord } from './types';
+import type { ConsentDecision, ConsentRecord } from './types.ts';
 
 export const CONSENT_STORAGE_KEY = 'opt-in-analytics:consent';
 

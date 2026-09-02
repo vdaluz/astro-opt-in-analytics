@@ -1,4 +1,4 @@
-import type { Localized } from './i18n';
+import type { Localized } from './i18n.ts';
 
 export interface TrackerPrivacyInfo {
   /** Short description of what this tracker is, e.g. "A self-hosted analytics server". */

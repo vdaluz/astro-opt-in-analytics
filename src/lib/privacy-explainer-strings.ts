@@ -1,4 +1,4 @@
-import type { Localized } from './i18n';
+import type { Localized } from './i18n.ts';
 
 export interface PrivacyExplainerStrings {
   whatsCollectedHeading: Localized;

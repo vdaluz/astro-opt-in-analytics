@@ -1,4 +1,4 @@
-import type { TrackerPrivacyInfo, UmamiApiTrackerAdapter } from '../types';
+import type { TrackerPrivacyInfo, UmamiApiTrackerAdapter } from '../types.ts';
 
 export interface UmamiOptions {
   /** Full URL of the Umami tracker script, e.g. https://umami.example.net/script.js. The API

@@ -1,6 +1,6 @@
 ---
-import { serializeTrackers } from '../lib/serialize-trackers';
-import type { AnalyticsConfig } from '../lib/types';
+import { serializeTrackers } from '../lib/serialize-trackers.ts';
+import type { AnalyticsConfig } from '../lib/types.ts';
 
 interface Props {
   config: AnalyticsConfig;
@@ -25,7 +25,7 @@ const payload = JSON.stringify({
 
 <script type="application/json" id="oia-config" set:html={payload} />
 <script>
-  import { bootConsentGate } from '../lib/client';
+  import { bootConsentGate } from '../lib/client.ts';
   bootConsentGate();
   document.addEventListener('astro:page-load', bootConsentGate);
 </script>

@@ -1,4 +1,4 @@
-import type { TrackerAdapter, UmamiApiTrackerAdapter } from './types';
+import type { TrackerAdapter, UmamiApiTrackerAdapter } from './types.ts';
 
 /**
  * The shape ConsentGate.astro writes into `#oia-config` and client.ts reads back via

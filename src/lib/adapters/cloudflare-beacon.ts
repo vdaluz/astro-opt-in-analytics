@@ -1,4 +1,4 @@
-import type { TrackerAdapter, TrackerPrivacyInfo } from '../types';
+import type { TrackerAdapter, TrackerPrivacyInfo } from '../types.ts';
 
 export interface CloudflareBeaconOptions {
   /** Cloudflare Web Analytics site token, from the dashboard's JS snippet. */

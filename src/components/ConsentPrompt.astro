@@ -1,6 +1,6 @@
 ---
-import type { AnalyticsConfig } from '../lib/types';
-import { resolveLocalized } from '../lib/i18n';
+import type { AnalyticsConfig } from '../lib/types.ts';
+import { resolveLocalized } from '../lib/i18n.ts';
 
 interface Props {
   config: AnalyticsConfig;
@@ -57,7 +57,7 @@ const decline = resolveLocalized(prompt.decline, locale);
 </div>
 
 <script>
-  import { bootConsentPrompt } from '../lib/client';
+  import { bootConsentPrompt } from '../lib/client.ts';
   bootConsentPrompt();
   document.addEventListener('astro:page-load', bootConsentPrompt);
 </script>

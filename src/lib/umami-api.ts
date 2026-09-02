@@ -1,4 +1,4 @@
-import type { UmamiApiTrackerAdapter } from './types';
+import type { UmamiApiTrackerAdapter } from './types.ts';
 
 /** The fields the sender actually needs - `kind`/`privacyInfo` never reach this module,
  * so callers (client.ts, deserializing JSON) don't have to fabricate them. */

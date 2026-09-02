@@ -1,7 +1,7 @@
 import { gpcDenied, readConsent, writeConsent } from './consent.ts';
 import { createUmamiSender, type UmamiSender } from './umami-api.ts';
 import type { SerializedTracker } from './serialize-trackers.ts';
-import type { ConsentDecision } from './types';
+import type { ConsentDecision } from './types.ts';
 
 type ConsentState = 'gpc' | 'granted' | 'denied' | 'undecided';
 
