@@ -12,7 +12,7 @@ Shared preamble: `.claude/rules/git-workflow-direct-to-main.md`.
 
 ## Conventions
 
-Shared `@vdaluz/astro-*` conventions (raw source/no build step, per-path exports):
+Shared `@vdaluz/astro-*` conventions (raw source/no build step, per-path exports, `.ts` extensions on relative imports):
 `.claude/rules/astro-package-conventions.md`. This package's exports map:
 `./ConsentGate.astro`, `./ConsentPrompt.astro`, `./PrivacyExplainer.astro`, `./client`.
 
