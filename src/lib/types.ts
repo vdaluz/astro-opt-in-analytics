@@ -49,8 +49,12 @@ export interface PromptCopy {
   message: Localized;
   accept: Localized;
   decline: Localized;
-  /** Accessible name for the dialog. Defaults to "Analytics consent". */
+  /** Accessible name for the dialog. Defaults to a built-in localized string (en/es/pt). */
   label?: Localized;
+  /** Optional "Learn more" link to a fuller privacy notice, rendered as a plain inline
+   * text link right after the message - never a third button, to keep the equal-weight
+   * accept/decline invariant intact. */
+  learnMore?: { href: string; text: Localized };
 }
 
 export interface AnalyticsConfig {

@@ -41,6 +41,8 @@ export const analytics = defineAnalyticsConfig({
     message: 'Can I count your visit? Anonymous, cookieless, self-hosted analytics. No is a fine answer.',
     accept: 'Count me',
     decline: 'No thanks',
+    // Optional: a plain inline text link after the message, never a third button.
+    learnMore: { href: '/privacy', text: 'Learn more' },
   },
 });
 ```

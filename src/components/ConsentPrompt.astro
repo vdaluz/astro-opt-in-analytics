@@ -1,6 +1,6 @@
 ---
 import type { AnalyticsConfig } from '../lib/types.ts';
-import { resolveLocalized } from '../lib/i18n.ts';
+import { resolveLocalized, type Localized } from '../lib/i18n.ts';
 
 interface Props {
   config: AnalyticsConfig;
@@ -10,16 +10,23 @@ interface Props {
   placement?: 'corner' | 'bar';
 }
 
+const DEFAULT_LABEL: Localized = {
+  default: 'Analytics consent',
+  es: 'Consentimiento de analítica',
+  pt: 'Consentimento de análise',
+};
+
 const { prompt } = Astro.props.config;
 const { locale, placement = 'corner' } = Astro.props;
 
 // The UX constraints here are deliberate and not configurable: equal-weight
 // buttons, decline first in DOM order, dismissal means deny, no overlay, no
 // scroll lock. A consumer cannot turn this prompt into a dark pattern.
-const label = prompt.label ? resolveLocalized(prompt.label, locale) : 'Analytics consent';
+const label = resolveLocalized(prompt.label ?? DEFAULT_LABEL, locale);
 const message = resolveLocalized(prompt.message, locale);
 const accept = resolveLocalized(prompt.accept, locale);
 const decline = resolveLocalized(prompt.decline, locale);
+const learnMoreText = prompt.learnMore ? resolveLocalized(prompt.learnMore.text, locale) : null;
 ---
 
 <div
@@ -47,7 +54,14 @@ const decline = resolveLocalized(prompt.decline, locale);
         <line x1="12" y1="20" x2="12" y2="4"></line>
         <line x1="18" y1="20" x2="18" y2="14"></line>
       </svg>
-      <p class="oia-message">{message}</p>
+      <p class="oia-message">
+        {message}{' '}
+        {learnMoreText && prompt.learnMore && (
+          <a href={prompt.learnMore.href} class="oia-learn-more">
+            {learnMoreText}
+          </a>
+        )}
+      </p>
     </div>
     <div class="oia-actions">
       <button type="button" data-oia-decline>{decline}</button>
@@ -172,6 +186,13 @@ const decline = resolveLocalized(prompt.decline, locale);
     margin: 0;
     font-size: 0.95rem;
     line-height: 1.55;
+  }
+
+  /* Underlined at rest, not hover-only - color alone doesn't distinguish a link from
+     surrounding text (WCAG 1.4.1), and this package's whole pitch is anti-dark-pattern. */
+  .oia-learn-more {
+    color: rgb(var(--accent, 124 124 255));
+    text-decoration: underline;
   }
 
   .oia-actions {
