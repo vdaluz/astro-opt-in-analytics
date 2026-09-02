@@ -22,7 +22,7 @@ const { locale, placement = 'corner' } = Astro.props;
 // The UX constraints here are deliberate and not configurable: equal-weight
 // buttons, decline first in DOM order, dismissal means deny, no overlay, no
 // scroll lock. A consumer cannot turn this prompt into a dark pattern.
-const label = resolveLocalized(prompt.label ?? DEFAULT_LABEL, locale);
+const label = resolveLocalized(prompt.label || DEFAULT_LABEL, locale);
 const message = resolveLocalized(prompt.message, locale);
 const accept = resolveLocalized(prompt.accept, locale);
 const decline = resolveLocalized(prompt.decline, locale);
