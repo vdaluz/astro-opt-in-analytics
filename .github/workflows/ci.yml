@@ -1,5 +1,5 @@
-# Type-check and test on every push to main and every PR. No deploy step -
-# this library ships as a tag-pinned tarball, not to Cloudflare.
+# Type-check and test on every push to main and every PR. Publishing to npm
+# happens in publish.yml on tag push, not here.
 name: CI
 
 on:
