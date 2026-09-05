@@ -65,6 +65,12 @@ Footer link, no JS required:
 <button type="button" data-open-analytics-prompt>Analytics preferences</button>
 ```
 
+### Placement
+
+`<ConsentPrompt placement="corner" />` (the default) docks a card bottom-right. `<ConsentPrompt placement="bar" />` renders a full-width bottom bar instead, for sites whose centered article column leaves no gutter wide enough for the corner card.
+
+Placement only changes the desktop layout - at <=640px both render the same full-width bottom sheet. The `bar` variant's own styling (message left, buttons right) only applies at >=641px, and its inner content column caps at `max-width: 64rem`, centered, so it lines up with a typical centered article width rather than spanning edge-to-edge.
+
 ### Example
 
 `ConsentPrompt` live on vdaluz.com, first visit, no stored decision:
