@@ -4,6 +4,8 @@ All notable changes to this project are documented here. Format loosely follows 
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-09-04
+
 ### Added
 
 - `PromptCopy` gained an optional `learnMore?: { href: string; text: Localized }` field - renders as a plain inline text link right after the message, never a third button, so the equal-weight accept/decline invariant stays intact. Lets a consumer point the prompt itself at the `/privacy` page `PrivacyExplainer` builds, instead of relying on the visitor to find a footer link first.
