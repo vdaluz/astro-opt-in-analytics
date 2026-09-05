@@ -1,5 +1,6 @@
 import { gpcDenied, readConsent, writeConsent } from './consent.ts';
 import { createUmamiSender, type UmamiSender } from './umami-api.ts';
+import { createPendingAction } from './pending-action.ts';
 import type { SerializedTracker } from './serialize-trackers.ts';
 import type { ConsentDecision } from './types.ts';
 
@@ -227,29 +228,26 @@ function applyPromptScrollPadding(prompt: HTMLElement, visible: boolean): void {
 }
 
 let promptDocumentListenersBound = false;
-let pendingMobileReveal: (() => void) | null = null;
+// A soft navigation can happen mid-countdown from a previous page's prompt, or a
+// decision can arrive before the countdown finishes on this one; `set()`/`cancel()`
+// keep at most one reveal pending and self-null so no call site here has to remember to.
+const pendingMobileReveal = createPendingAction();
 
 function scheduleMobileReveal(prompt: HTMLElement): void {
-  // A soft navigation can happen mid-countdown from a previous page; clear that
-  // pending timer/listener before scheduling a fresh one for the new element.
-  pendingMobileReveal?.();
-
   let revealed = false;
   const reveal = (): void => {
     if (revealed) return;
     revealed = true;
-    window.removeEventListener('scroll', reveal);
-    clearTimeout(timer);
-    pendingMobileReveal = null;
+    pendingMobileReveal.cancel();
     prompt.hidden = false;
     applyPromptScrollPadding(prompt, true);
   };
   window.addEventListener('scroll', reveal, { once: true, passive: true });
   const timer = window.setTimeout(reveal, MOBILE_DEFER_MS);
-  pendingMobileReveal = (): void => {
+  pendingMobileReveal.set(() => {
     window.removeEventListener('scroll', reveal);
     clearTimeout(timer);
-  };
+  });
 }
 
 /**
@@ -266,12 +264,20 @@ function scheduleMobileReveal(prompt: HTMLElement): void {
  */
 export function bootConsentPrompt(): void {
   const prompt = document.getElementById(PROMPT_ELEMENT_ID);
-  if (!prompt) return;
+  if (!prompt) {
+    // A ClientRouter navigation to a page with no prompt: the previous page's reveal
+    // timer/scroll-listener, if still pending, would otherwise fire later against the
+    // now-detached old element and re-apply scroll padding on this page.
+    document.documentElement.style.scrollPaddingBottom = '';
+    pendingMobileReveal.cancel();
+    return;
+  }
 
   const choose = (decision: ConsentDecision): void => {
     document.dispatchEvent(new CustomEvent(CHOOSE_EVENT, { detail: decision }));
     prompt.hidden = true;
     applyPromptScrollPadding(prompt, false);
+    pendingMobileReveal.cancel();
   };
 
   prompt.querySelector('[data-oia-accept]')?.addEventListener('click', () => choose('granted'));
