@@ -1,0 +1,24 @@
+# Plane state/label UUIDs and project ID for the AST project.
+# Referenced by CLAUDE.md's "Plane (AST project)" section - edit this file, not
+# CLAUDE.md, when a state or label UUID changes in Plane.
+
+project_id: 821d6c98-89e6-4e9b-8d60-f07171c7b982
+project_identifier: AST
+
+states:
+  Backlog: cddba717-8a58-47aa-91f1-b0c827ea0b53
+  Todo: f326c912-99f8-4907-a0c2-69316dc608e9
+  In Progress: ef6df505-a6af-473e-a52d-b1a447708144
+  Done: 3042473a-5668-4cbd-ba3c-87f70af9bb5c
+  Cancelled: 3b4115e9-dfa4-4d0b-b778-212cf77d42c5
+  Blocked: 623a08a1-475e-4818-89e4-3a997ec7a309
+
+labels:
+  tests: 60d76378-3c0e-49e0-8829-2b15badc2362
+  docs: 890764df-c2c4-43d1-9f4f-33475c013917
+  bug: 46ef44ac-47f2-430b-840e-82bf40b6135f
+  cross-cutting: c10770ef-9b63-4b37-a013-3c49adb2ab44
+  astro-opt-in-analytics: 3ece8dd3-c822-403e-bb6b-cfb33cc2338b
+  astro-og-cards: a3b4a9eb-2180-450b-b6d3-83b05259ca2b
+  astro-affiliate: 4c1a68b8-7fce-4136-9446-b924481db253
+  astro-blog: 786d8feb-5c31-4295-bb3b-2ea3929219c6

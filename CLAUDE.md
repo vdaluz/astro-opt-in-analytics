@@ -10,6 +10,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Shared preamble: `.claude/rules/git-workflow-direct-to-main.md`.
 
+## Plane (AST project)
+
+Project ID, state UUIDs, and label UUIDs: **`.claude/plane.yml`**.
+
 ## Conventions
 
 Shared `@vdaluz/astro-*` conventions (raw source/no build step, per-path exports, `.ts` extensions on relative imports):
