@@ -4,6 +4,10 @@ All notable changes to this project are documented here. Format loosely follows 
 
 ## [Unreleased]
 
+### Fixed
+
+- `resolveLocalized()` matched a `Localized` value by exact locale key only, so a region-qualified locale (`pt-BR`, `es-CR`) fell straight through to `default` even when the primary-subtag entry (`pt`, `es`) existed. Now resolves exact locale -> primary subtag -> `default`.
+
 ## [0.9.0] - 2026-09-04
 
 ### Added
