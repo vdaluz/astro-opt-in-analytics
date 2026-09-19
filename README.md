@@ -169,6 +169,7 @@ Publishing / OIDC, no token secret):
 - [wq1k.com](https://wq1k.com)
 - [freetoolbox.net](https://freetoolbox.net)
 - [vicstradamus.com](https://vicstradamus.com) (Cloudflare Web Analytics only, via `cloudflareBeacon()`)
+- [deepcutatlas.com](https://deepcutatlas.com)
 
 ## License
 
