@@ -4,6 +4,10 @@ All notable changes to this project are documented here. Format loosely follows 
 
 ## [Unreleased]
 
+### Fixed
+
+- The Umami sender applied `excludeSearch`/`excludeHash` to the `url` field only. The `referrer` on custom events (including `affiliate-click`) and on soft-navigation pageviews carried the previous page's full `location.href`, query string and fragment included, and a cross-origin `document.referrer` was sent unstripped on the first pageview. Both are now stripped the same way as `url`, matching Umami's own script.
+
 ## [0.9.1] - 2026-09-10
 
 ### Fixed

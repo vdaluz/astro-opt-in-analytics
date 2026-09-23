@@ -1,6 +1,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { buildUmamiPayload, buildUmamiUrl, shouldSuppressUmami } from '../src/lib/umami-api.ts';
+import {
+  buildUmamiPayload,
+  buildUmamiUrl,
+  createUmamiSender,
+  normalizeUmamiHref,
+  shouldSuppressUmami,
+  type UmamiPayload,
+} from '../src/lib/umami-api.ts';
 import { umami, umamiApiEndpoint } from '../src/lib/adapters/umami.ts';
 
 test('umamiApiEndpoint derives /api/send from the script src', () => {
@@ -105,4 +112,86 @@ test('buildUmamiPayload includes name/data for a custom event', () => {
   );
   assert.equal(payload.name, 'affiliate-click');
   assert.deepEqual(payload.data, { key: 'atomicHabits', channel: 'default', program: 'amazon' });
+});
+
+test('normalizeUmamiHref keeps the absolute href intact by default', () => {
+  assert.equal(
+    normalizeUmamiHref(BASE, 'https://example.com/gear?ref=x#section'),
+    'https://example.com/gear?ref=x#section'
+  );
+});
+
+test('normalizeUmamiHref strips search and hash per config', () => {
+  const tracker = umami({ ...BASE_OPTIONS, excludeSearch: true, excludeHash: true });
+  assert.equal(normalizeUmamiHref(tracker, 'https://example.com/gear?ref=x#section'), 'https://example.com/gear');
+});
+
+function withBrowserStubs(
+  initial: { href: string; referrer?: string },
+  run: (navigate: (href: string) => void, sent: UmamiPayload[]) => void
+): void {
+  const g = globalThis as Record<string, unknown>;
+  const saved = { location: g.location, document: g.document, screen: g.screen, fetch: g.fetch };
+  const sent: UmamiPayload[] = [];
+  const setLocation = (href: string): void => {
+    const url = new URL(href);
+    g.location = { href: url.href, hostname: url.hostname, origin: url.origin };
+  };
+  setLocation(initial.href);
+  g.document = { title: 'Page', referrer: initial.referrer ?? '' };
+  g.screen = { width: 1920, height: 1080 };
+  g.fetch = (_endpoint: string, init: { body: string }) => {
+    sent.push(JSON.parse(init.body).payload);
+    return Promise.resolve({ json: () => Promise.resolve({}) });
+  };
+  try {
+    run(setLocation, sent);
+  } finally {
+    Object.assign(g, saved);
+  }
+}
+
+for (const [flag, marker] of [
+  ['excludeSearch', '?'],
+  ['excludeHash', '#'],
+] as const) {
+  test(`createUmamiSender keeps ${flag}'s stripped part out of url and referrer across consecutive sends`, () => {
+    withBrowserStubs({ href: 'https://example.com/a?x=1#h' }, (navigate, sent) => {
+      const sender = createUmamiSender(umami({ ...BASE_OPTIONS, [flag]: true }));
+      sender.pageview();
+      navigate('https://example.com/b?y=2#j');
+      sender.pageview();
+      sender.event('affiliate-click', { key: 'k', channel: 'default', program: 'amazon' });
+
+      assert.equal(sent.length, 3);
+      for (const payload of sent) {
+        assert.ok(!payload.url.includes(marker), `url ${payload.url}`);
+        assert.ok(!payload.referrer.includes(marker), `referrer ${payload.referrer}`);
+      }
+      assert.equal(sent[0].referrer, '');
+      assert.match(sent[1].referrer, /^https:\/\/example\.com\/a/);
+      assert.match(sent[2].referrer, /^https:\/\/example\.com\/b/);
+    });
+  });
+
+  test(`createUmamiSender applies ${flag} to a cross-origin initial referrer`, () => {
+    withBrowserStubs(
+      { href: 'https://example.com/a', referrer: 'https://other.example/post?utm=1#top' },
+      (_navigate, sent) => {
+        createUmamiSender(umami({ ...BASE_OPTIONS, [flag]: true })).pageview();
+        assert.match(sent[0].referrer, /^https:\/\/other\.example\/post/);
+        assert.ok(!sent[0].referrer.includes(marker), `referrer ${sent[0].referrer}`);
+      }
+    );
+  });
+}
+
+test('createUmamiSender leaves the referrer untouched when neither flag is set', () => {
+  withBrowserStubs({ href: 'https://example.com/a?x=1#h' }, (navigate, sent) => {
+    const sender = createUmamiSender(BASE);
+    sender.pageview();
+    navigate('https://example.com/b');
+    sender.pageview();
+    assert.equal(sent[1].referrer, 'https://example.com/a?x=1#h');
+  });
 });

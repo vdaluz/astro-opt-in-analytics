@@ -27,11 +27,17 @@ export function shouldSuppressUmami(
   return false;
 }
 
-/** Strips search/hash per config, mirroring Umami's own script's data-exclude-search/-hash. */
-export function buildUmamiUrl(config: UmamiSenderConfig, href: string): string {
+/** Strips search/hash per config, mirroring Umami's own script's data-exclude-search/-hash,
+ * which it applies to both the url and referrer fields. */
+export function normalizeUmamiHref(config: UmamiSenderConfig, href: string): string {
   const url = new URL(href);
   if (config.excludeSearch) url.search = '';
   if (config.excludeHash) url.hash = '';
+  return url.href;
+}
+
+export function buildUmamiUrl(config: UmamiSenderConfig, href: string): string {
+  const url = new URL(normalizeUmamiHref(config, href));
   return `${url.pathname}${url.search}${url.hash}`;
 }
 
@@ -62,11 +68,11 @@ function currentDoNotTrackSignal(): string | null {
 }
 
 /** document.referrer, but blanked when it's same-origin (e.g. a soft reload), matching Umami's own script. */
-function initialReferrer(): string {
+function initialReferrer(config: UmamiSenderConfig): string {
   const ref = document.referrer;
   if (!ref) return '';
   try {
-    return new URL(ref).origin === location.origin ? '' : ref;
+    return new URL(ref).origin === location.origin ? '' : normalizeUmamiHref(config, ref);
   } catch {
     return ref;
   }
@@ -86,9 +92,8 @@ export interface UmamiSender {
  */
 export function createUmamiSender(config: UmamiSenderConfig): UmamiSender {
   let previousUrl: string | null = null;
-  /** Full previous href (not the path-only `url` field) - a referrer can be cross-origin,
-   * so it needs the same absolute form Umami's own script sends, unlike `url` which is
-   * always same-site and fine as a relative path. */
+  /** Absolute previous href (the form Umami's own script sends as referrer), already
+   * normalized so the next request's referrer honours excludeSearch/excludeHash like `url`. */
   let previousHref: string | null = null;
   let cacheToken: string | undefined;
 
@@ -98,9 +103,9 @@ export function createUmamiSender(config: UmamiSenderConfig): UmamiSender {
     const currentHref = location.href;
     const url = buildUmamiUrl(config, currentHref);
     if (!extra && url === previousUrl) return;
-    const referrer = previousHref ?? initialReferrer();
+    const referrer = previousHref ?? initialReferrer(config);
     previousUrl = url;
-    previousHref = currentHref;
+    previousHref = normalizeUmamiHref(config, currentHref);
 
     const payload = buildUmamiPayload(
       config,
