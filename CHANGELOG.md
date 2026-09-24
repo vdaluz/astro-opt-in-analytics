@@ -7,6 +7,7 @@ All notable changes to this project are documented here. Format loosely follows 
 ### Fixed
 
 - The Umami sender applied `excludeSearch`/`excludeHash` to the `url` field only. The `referrer` on custom events (including `affiliate-click`) and on soft-navigation pageviews carried the previous page's full `location.href`, query string and fragment included, and a cross-origin `document.referrer` was sent unstripped on the first pageview. Both are now stripped the same way as `url`, matching Umami's own script.
+- `ConsentPrompt` still covered content at the very end of the page (footer links) until answered. The 0.9.0 `scroll-padding-bottom` mitigation only moves the scroll-into-view target; at maximum scroll there was no range left to move a footer link into, so a keyboard user tabbing to one focused it behind the prompt (SC 2.4.11). While the prompt is visible the document root now also gets a matching `padding-bottom`, which adds that scroll range; both are cleared once the prompt is answered or dismissed. Measured on imperfectsystems.com (production build, `placement="bar"`): 10 of 10 footer links hidden at 390/360/320px and 1 of 10 at 1440px before, 0 of 10 at every width after. Like the 0.9.0 fix this applies to every placement, so `'corner'` reserves a full-width band the height of its card. It relies on the page scrolling the document itself: a layout that locks `body` to the viewport height and lets content overflow it gets no extra range from root padding.
 
 ## [0.9.1] - 2026-09-10
 

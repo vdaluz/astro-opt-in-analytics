@@ -200,8 +200,10 @@ export function openConsentPrompt(): void {
  * width, 'corner' bottom-right, the <=640px mobile sheet), which the browser's default
  * scroll-into-view does not account for - tabbing to an in-article or footer link that
  * lands behind it would otherwise focus a hidden element (SC 2.4.11). Reserve that
- * space via scroll-padding-bottom while the prompt is visible; clear it once answered
- * so the page reclaims the full scroll range.
+ * space while the prompt is visible and clear it once answered. scroll-padding-bottom
+ * alone only moves the scroll-into-view target; content at the very end of the page
+ * (footer links) has no scroll range left to move into, so padding-bottom adds that
+ * range.
  *
  * Height alone under-reserves for 'corner': it sits inset-block-end: 1rem, not flush
  * with the viewport edge like 'bar', so its occluded band starts 1rem higher than its
@@ -214,17 +216,20 @@ export function openConsentPrompt(): void {
  * includes the transform, so a rect-derived measurement taken then would under-
  * reserve permanently. The computed inset-block-end isn't affected by the transform.
  */
-function applyPromptScrollPadding(prompt: HTMLElement, visible: boolean): void {
-  const root = document.documentElement;
-  if (!visible) {
-    root.style.scrollPaddingBottom = '';
-    return;
-  }
+function reservePromptSpace(prompt: HTMLElement): void {
   requestAnimationFrame(() => {
     const height = prompt.getBoundingClientRect().height;
     const inset = parseFloat(getComputedStyle(prompt).insetBlockEnd) || 0;
+    const root = document.documentElement;
     root.style.scrollPaddingBottom = `${height + inset}px`;
+    root.style.paddingBottom = `${height + inset}px`;
   });
+}
+
+function releasePromptSpace(): void {
+  const root = document.documentElement;
+  root.style.scrollPaddingBottom = '';
+  root.style.paddingBottom = '';
 }
 
 let promptDocumentListenersBound = false;
@@ -240,7 +245,7 @@ function scheduleMobileReveal(prompt: HTMLElement): void {
     revealed = true;
     pendingMobileReveal.cancel();
     prompt.hidden = false;
-    applyPromptScrollPadding(prompt, true);
+    reservePromptSpace(prompt);
   };
   window.addEventListener('scroll', reveal, { once: true, passive: true });
   const timer = window.setTimeout(reveal, MOBILE_DEFER_MS);
@@ -268,7 +273,7 @@ export function bootConsentPrompt(): void {
     // A ClientRouter navigation to a page with no prompt: the previous page's reveal
     // timer/scroll-listener, if still pending, would otherwise fire later against the
     // now-detached old element and re-apply scroll padding on this page.
-    document.documentElement.style.scrollPaddingBottom = '';
+    releasePromptSpace();
     pendingMobileReveal.cancel();
     return;
   }
@@ -276,7 +281,7 @@ export function bootConsentPrompt(): void {
   const choose = (decision: ConsentDecision): void => {
     document.dispatchEvent(new CustomEvent(CHOOSE_EVENT, { detail: decision }));
     prompt.hidden = true;
-    applyPromptScrollPadding(prompt, false);
+    releasePromptSpace();
     pendingMobileReveal.cancel();
   };
 
@@ -294,7 +299,7 @@ export function bootConsentPrompt(): void {
       const current = document.getElementById(PROMPT_ELEMENT_ID);
       if (!current || getState() === 'gpc') return;
       current.hidden = false;
-      applyPromptScrollPadding(current, true);
+      reservePromptSpace(current);
       (current.querySelector('[data-oia-decline]') as HTMLElement | null)?.focus();
     });
 
@@ -316,6 +321,6 @@ export function bootConsentPrompt(): void {
     scheduleMobileReveal(prompt);
   } else {
     prompt.hidden = false;
-    applyPromptScrollPadding(prompt, true);
+    reservePromptSpace(prompt);
   }
 }
