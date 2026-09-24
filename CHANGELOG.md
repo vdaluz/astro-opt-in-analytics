@@ -4,6 +4,10 @@ All notable changes to this project are documented here. Format loosely follows 
 
 ## [Unreleased]
 
+### Added
+
+- DOM-level tests for the consent gate (`test/consent-gate.test.ts`, happy-dom as a devDependency). They boot `bootConsentGate()` against a real `#oia-config` payload and assert that GPC, a stored denial and an undecided visitor load no tracker and make no request, that a stored or freshly chosen grant injects the script tracker and sends exactly one Umami pageview, and that a re-booted prompt binds its fresh buttons after a soft navigation. No runtime change.
+
 ### Fixed
 
 - The Umami sender applied `excludeSearch`/`excludeHash` to the `url` field only. The `referrer` on custom events (including `affiliate-click`) and on soft-navigation pageviews carried the previous page's full `location.href`, query string and fragment included, and a cross-origin `document.referrer` was sent unstripped on the first pageview. Both are now stripped the same way as `url`, matching Umami's own script.
