@@ -134,7 +134,7 @@ Umami's own tracker script initializes by reading `document.currentScript` - the
 
 ## Styling
 
-The prompt reads CSS custom properties with sensible dark fallbacks: `--surface`, `--fg`, `--border`, `--accent`, `--on-accent`. Same token contract as [@vdaluz/astro-blog](https://github.com/vdaluz/astro-blog): values are **R G B channel triplets** (e.g. `--surface: 26 26 26;`), consumed as `rgb(var(--name))`. If your app already defines those, the prompt matches your theme with zero extra CSS.
+The prompt reads CSS custom properties with sensible dark fallbacks: `--surface`, `--fg`, `--accent`, `--on-accent`. Same token contract as [@vdaluz/astro-blog](https://github.com/vdaluz/astro-blog): values are **R G B channel triplets** (e.g. `--surface: 26 26 26;`), consumed as `rgb(var(--name))`. If your app already defines those, the prompt matches your theme with zero extra CSS.
 
 `PrivacyExplainer.astro` is different: it's styled entirely with Tailwind token utility classes (`text-fg`, `text-muted`, `text-accent`, `space-y-12`, and similar), not CSS custom properties. For it to render styled at all, your app must:
 

@@ -130,7 +130,7 @@ const learnMoreText = prompt.learnMore ? resolveLocalized(prompt.learnMore.text,
   }
 
   /* 'bar' placement: a full-width bottom bar, scoped to >=641px so it never
-     overrides the >=640px mobile sheet above (media queries add no
+     overrides the <=640px mobile sheet above (media queries add no
      specificity of their own - both rules are otherwise equally specific). */
   @media (min-width: 641px) {
     #oia-prompt[data-placement='bar'] {
