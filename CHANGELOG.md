@@ -4,6 +4,8 @@ All notable changes to this project are documented here. Format loosely follows 
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-09-24
+
 ### Added
 
 - DOM-level tests for the consent gate (`test/consent-gate.test.ts`, happy-dom as a devDependency). They boot `bootConsentGate()` against a real `#oia-config` payload and assert that GPC, a stored denial and an undecided visitor load no tracker and make no request, that a stored or freshly chosen grant injects the script tracker and sends exactly one Umami pageview, and that a re-booted prompt binds its fresh buttons after a soft navigation. No runtime change.
