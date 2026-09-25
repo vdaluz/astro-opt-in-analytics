@@ -154,7 +154,8 @@ Publishing / OIDC, no token secret):
 
 1. Test before tagging: `npm pack`, install the tarball into a scratch Astro app (or a consumer
    locally), `astro check && astro build`.
-2. Bump `version` in `package.json`, commit.
+2. Bump the version with `npm version X.Y.Z --no-git-tag-version`, which updates `package.json`
+   and `package-lock.json` together, then commit both.
 3. Tag `vX.Y.Z` and push the tag. Pushing the tag runs `.github/workflows/publish.yml`, which
    type-checks, tests, verifies the tag matches `package.json`'s version, and only then runs
    `npm publish`.
