@@ -2,7 +2,7 @@
 
 ## What this repo is
 
-`@vdaluz/astro-opt-in-analytics`: consent-first analytics for Astro sites. An opt-in prompt, a consent gate, tracker adapters (`umami`, `cloudflareBeacon`), and a `PrivacyExplainer` component that renders a `/privacy` page's substantive copy straight from the tracker config. Trackers activate only after an explicit stored grant; denied, unanswered, or a Global Privacy Control signal means zero requests. Consumed by vdaluz.com, imperfectsystems.com, wq1k.com, freetoolbox.net, and vicstradamus.com (Cloudflare Beacon only) as an npm-registry semver pin.
+`@vdaluz/astro-opt-in-analytics`: consent-first analytics for Astro sites. An opt-in prompt, a consent gate, tracker adapters (`umami`, `cloudflareBeacon`), and a `PrivacyExplainer` component that renders a `/privacy` page's substantive copy straight from the tracker config. Trackers activate only after an explicit stored grant; denied, unanswered, or a Global Privacy Control signal means zero requests. Consumed as an npm-registry semver pin by the sites in the README's Consumers section.
 
 ## Workflow
 
@@ -33,8 +33,4 @@ concrete steps.
 
 ## Consumers
 
-- imperfectsystems.com (`src/config/analytics.ts`)
-- vdaluz.com (`src/config/analytics.ts`)
-- wq1k.com (`src/config/analytics.ts`)
-- freetoolbox.net (`src/config/analytics.ts`)
-- vicstradamus.com (`src/config/analytics.ts`, `cloudflareBeacon()` only)
+The README's Consumers section is the single list. Update it when a repo adds or drops its `@vdaluz/astro-opt-in-analytics` dependency (`grep -l '"@vdaluz/astro-opt-in-analytics"' ~/Repos/*/package.json`).

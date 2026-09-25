@@ -6,7 +6,7 @@
 
 Consent-first analytics for Astro. The tracker script does not exist on the page until the visitor says yes: no requests, no fingerprinting surface, nothing to block. An opt-in prompt asks once, the answer is remembered, and refusing is exactly as easy as accepting.
 
-Built for [Umami](https://umami.is) first, with a small adapter interface for other trackers. Ships raw `.astro` and `.ts` - the consuming app's Astro/Vite compiles them (no prebuild step). Proven in production on vdaluz.com, imperfectsystems.com, and wq1k.com - see [Consumers](#consumers).
+Built for [Umami](https://umami.is) first, with a small adapter interface for other trackers. Ships raw `.astro` and `.ts` - the consuming app's Astro/Vite compiles them (no prebuild step). Used in production by the sites under [Consumers](#consumers).
 
 ## Why opt-in
 
@@ -169,8 +169,9 @@ Publishing / OIDC, no token secret):
 - [imperfectsystems.com](https://imperfectsystems.com)
 - [wq1k.com](https://wq1k.com)
 - [freetoolbox.net](https://freetoolbox.net)
-- [vicstradamus.com](https://vicstradamus.com) (Cloudflare Web Analytics only, via `cloudflareBeacon()`)
+- [vicstradamus.com](https://vicstradamus.com) (`umami()` and `cloudflareBeacon()`)
 - [deepcutatlas.com](https://deepcutatlas.com)
+- [roomforstars.com](https://roomforstars.com) (components wired in; its Umami site ID is still a placeholder, so it doesn't track yet)
 
 ## License
 
