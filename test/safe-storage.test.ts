@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { safeStorage } from '../src/lib/client.ts';
+import { safeStorage } from '../src/lib/client-helpers.ts';
 
 test('safeStorage returns null when window is unavailable (no DOM in this test environment)', () => {
   assert.equal(safeStorage(), null);

@@ -97,6 +97,16 @@ afterEach(async () => {
   await GlobalRegistrator.unregister();
 });
 
+test('./client exports only the documented functions and the two boot entry points', async () => {
+  const client = await freshClient();
+  assert.deepEqual(Object.keys(client).sort(), [
+    'bootConsentGate',
+    'bootConsentPrompt',
+    'openConsentPrompt',
+    'trackEvent',
+  ]);
+});
+
 test('GPC: sets gpc state and loads nothing, even with a stored grant', async () => {
   setGpc(true);
   storeDecision('granted');

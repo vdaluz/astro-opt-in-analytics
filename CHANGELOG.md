@@ -9,6 +9,10 @@ All notable changes to this project are documented here. Format loosely follows 
 - DOM-level tests for the consent gate (`test/consent-gate.test.ts`, happy-dom as a devDependency). They boot `bootConsentGate()` against a real `#oia-config` payload and assert that GPC, a stored denial and an undecided visitor load no tracker and make no request, that a stored or freshly chosen grant injects the script tracker and sends exactly one Umami pageview, and that a re-booted prompt binds its fresh buttons after a soft navigation. No runtime change.
 - `ResolvedAnalyticsConfig` type: what `defineAnalyticsConfig` now returns, with `consentVersion` and `consentMaxAgeDays` filled in and `tracker` always an array. It is assignable to `AnalyticsConfig`, so existing code that passes the result around or annotates it as `AnalyticsConfig` keeps type-checking. The components still accept a plain `AnalyticsConfig`.
 
+### Removed
+
+- **Breaking for code importing test helpers from `./client`.** `safeStorage`, `shouldTrack` and `buildAffiliateClickPayload` are no longer exported from `./client`. They were undocumented and existed for this package's own tests; they now live in an internal module outside the exports map. `./client` exports `trackEvent`, `openConsentPrompt`, `bootConsentGate` and `bootConsentPrompt`. None of the known consumers imported the removed helpers. Ships in 0.10.0.
+
 ### Fixed
 
 - A hand-built `UmamiApiTrackerAdapter` that omitted `respectDoNotTrack` ignored Do Not Track, although the type documents the field as "Default true". The default lived only in the `umami()` factory; `shouldSuppressUmami` now treats a missing value as true. Adapters from `umami()` are unaffected.

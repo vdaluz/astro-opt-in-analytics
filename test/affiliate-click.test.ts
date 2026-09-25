@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { buildAffiliateClickPayload, shouldTrack } from '../src/lib/client.ts';
+import { buildAffiliateClickPayload, shouldTrack } from '../src/lib/client-helpers.ts';
 
 test('shouldTrack is true only when consent is granted and Umami is present', () => {
   assert.equal(shouldTrack('granted', true), true);

@@ -116,7 +116,7 @@ This requires switching off Cloudflare's edge auto-injection for the zone (dashb
 
 ### Affiliate click tracking
 
-`bindAffiliateClickTracking()` is wired in automatically by `bootConsentGate()` - no extra setup needed. It's a delegated click listener for any `[data-affiliate-key]` anchor on the page, the contract [`@vdaluz/astro-affiliate`'s `<AffiliateLink>`](https://github.com/vdaluz/astro-affiliate#click-tracking) renders. On click it reports an `affiliate-click` event with `{ key, channel, program }` - `channel` defaults to `'default'` when the link didn't pass one, so Umami's per-channel breakdown is always populated. Middle-click (`auxclick`) is not counted; this sits inside the same consent-gated undercount the rest of the package already accepts.
+Affiliate click tracking is wired in automatically by `bootConsentGate()` - no extra setup needed. It's a delegated click listener for any `[data-affiliate-key]` anchor on the page, the contract [`@vdaluz/astro-affiliate`'s `<AffiliateLink>`](https://github.com/vdaluz/astro-affiliate#click-tracking) renders. On click it reports an `affiliate-click` event with `{ key, channel, program }` - `channel` defaults to `'default'` when the link didn't pass one, so Umami's per-channel breakdown is always populated. Middle-click (`auxclick`) is not counted; this sits inside the same consent-gated undercount the rest of the package already accepts.
 
 Harmless on pages with no affiliate links - the listener still binds (cheap, one delegated handler) but never matches anything.
 

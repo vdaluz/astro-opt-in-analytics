@@ -3,8 +3,12 @@ import { createUmamiSender, type UmamiSender } from './umami-api.ts';
 import { createPendingAction } from './pending-action.ts';
 import type { SerializedTracker } from './serialize-trackers.ts';
 import type { ConsentDecision } from './types.ts';
-
-type ConsentState = 'gpc' | 'granted' | 'denied' | 'undecided';
+import {
+  buildAffiliateClickPayload,
+  safeStorage,
+  shouldTrack,
+  type ConsentState,
+} from './client-helpers.ts';
 
 interface GateConfig {
   trackers: SerializedTracker[];
@@ -74,23 +78,6 @@ function activateTrackers(trackers: SerializedTracker[]): void {
 let gateChooseListenerBound = false;
 
 /**
- * Merely reading `window.localStorage` throws a SecurityError in some
- * cookie/site-data-blocked browsers and sandboxed iframes - before any of
- * `Storage`'s own methods are called. `readConsent`/`writeConsent` already
- * swallow throws from `getItem`/`setItem`, but that protection never runs if
- * the caller's own `localStorage` reference throws first. Returns null in
- * that case, treated as "no persistence, decision applies for this page view
- * only" - the behaviour `writeConsent`'s own catch comment already promises.
- */
-export function safeStorage(): Storage | null {
-  try {
-    return window.localStorage;
-  } catch {
-    return null;
-  }
-}
-
-/**
  * Boot the consent gate. Re-run on every astro:page-load (see ConsentGate.astro) so a
  * ClientRouter navigation re-stamps state and re-injects the tracker for the new page;
  * a document-level CHOOSE_EVENT listener only needs binding once since `document` itself
@@ -128,11 +115,6 @@ export function bootConsentGate(): void {
   });
 }
 
-/** Pure decision extracted from trackEvent() so it's testable without a DOM. */
-export function shouldTrack(state: ConsentState, hasUmami: boolean): boolean {
-  return state === 'granted' && hasUmami;
-}
-
 /**
  * Reports a custom event to every active Umami tracker if consent is currently granted,
  * no-ops otherwise (denied, undecided, GPC, or no Umami tracker on this page - e.g.
@@ -148,22 +130,6 @@ const AFFILIATE_KEY_ATTR = 'data-affiliate-key';
 const AFFILIATE_CHANNEL_ATTR = 'data-affiliate-channel';
 const AFFILIATE_PROGRAM_ATTR = 'data-affiliate-program';
 const AFFILIATE_CLICK_EVENT = 'affiliate-click';
-
-/**
- * Builds the affiliate-click payload from an <AffiliateLink>'s data attributes (see
- * @vdaluz/astro-affiliate). Returns null when key/program are missing - not a valid
- * affiliate link, skip tracking rather than send a partial event. `channel` defaults
- * to 'default' so Umami's per-channel breakdown is populated even for links that
- * don't pass one.
- */
-export function buildAffiliateClickPayload(attrs: {
-  key?: string | null;
-  channel?: string | null;
-  program?: string | null;
-}): Record<string, string> | null {
-  if (!attrs.key || !attrs.program) return null;
-  return { key: attrs.key, channel: attrs.channel ?? 'default', program: attrs.program };
-}
 
 let affiliateClickListenerBound = false;
 
