@@ -23,7 +23,7 @@ export function shouldSuppressUmami(
   doNotTrackSignal: string | null
 ): boolean {
   if (config.domains?.length && !config.domains.includes(hostname)) return true;
-  if (config.respectDoNotTrack && (doNotTrackSignal === '1' || doNotTrackSignal === 'yes')) return true;
+  if (config.respectDoNotTrack !== false && (doNotTrackSignal === '1' || doNotTrackSignal === 'yes')) return true;
   return false;
 }
 

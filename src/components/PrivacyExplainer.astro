@@ -1,5 +1,6 @@
 ---
 import type { AnalyticsConfig } from '../lib/types.ts';
+import { resolveAnalyticsConfig } from '../lib/config.ts';
 import { resolveLocalized, type Localized } from '../lib/i18n.ts';
 import {
   resolvePrivacyExplainerStrings,
@@ -15,8 +16,7 @@ interface Props {
 
 const { config, locale, strings: overrides } = Astro.props;
 
-const trackers = Array.isArray(config.tracker) ? config.tracker : [config.tracker];
-const documented = trackers.filter((tracker) => tracker.privacyInfo);
+const documented = resolveAnalyticsConfig(config).tracker.filter((tracker) => tracker.privacyInfo);
 
 const t = (text: Localized) => resolveLocalized(text, locale);
 

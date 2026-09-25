@@ -9,6 +9,7 @@ export type {
   ConsentDecision,
   ConsentRecord,
   PromptCopy,
+  ResolvedAnalyticsConfig,
   ScriptTrackerAdapter,
   TrackerAdapter,
   TrackerPrivacyInfo,

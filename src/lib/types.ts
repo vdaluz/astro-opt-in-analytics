@@ -73,6 +73,13 @@ export interface AnalyticsConfig {
   consentMaxAgeDays?: number;
 }
 
+/** What `defineAnalyticsConfig` returns: defaults filled in, `tracker` always an array. */
+export interface ResolvedAnalyticsConfig extends AnalyticsConfig {
+  tracker: TrackerAdapter[];
+  consentVersion: number;
+  consentMaxAgeDays: number;
+}
+
 export type ConsentDecision = 'granted' | 'denied';
 
 export interface ConsentRecord {

@@ -9,6 +9,7 @@ import {
   type UmamiPayload,
 } from '../src/lib/umami-api.ts';
 import { umami, umamiApiEndpoint } from '../src/lib/adapters/umami.ts';
+import type { UmamiApiTrackerAdapter } from '../src/lib/types.ts';
 
 test('umamiApiEndpoint derives /api/send from the script src', () => {
   assert.equal(
@@ -60,6 +61,15 @@ test('shouldSuppressUmami suppresses on a "1" or "yes" Do Not Track signal when 
   assert.equal(shouldSuppressUmami(BASE, 'example.com', '1'), true);
   assert.equal(shouldSuppressUmami(BASE, 'example.com', 'yes'), true);
   assert.equal(shouldSuppressUmami(BASE, 'example.com', '0'), false);
+});
+
+test('shouldSuppressUmami honors Do Not Track for a hand-built adapter that omits respectDoNotTrack', () => {
+  const handBuilt: UmamiApiTrackerAdapter = {
+    kind: 'umami-api',
+    endpoint: 'https://umami.example.net/api/send',
+    websiteId: 'abc',
+  };
+  assert.equal(shouldSuppressUmami(handBuilt, 'example.com', '1'), true);
 });
 
 test('shouldSuppressUmami ignores Do Not Track when respectDoNotTrack is false', () => {

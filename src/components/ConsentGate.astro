@@ -1,4 +1,5 @@
 ---
+import { resolveAnalyticsConfig } from '../lib/config.ts';
 import { serializeTrackers } from '../lib/serialize-trackers.ts';
 import type { AnalyticsConfig } from '../lib/types.ts';
 
@@ -6,19 +7,17 @@ interface Props {
   config: AnalyticsConfig;
 }
 
-const { config } = Astro.props;
-
-const trackers = Array.isArray(config.tracker) ? config.tracker : [config.tracker];
+const config = resolveAnalyticsConfig(Astro.props.config);
 
 // JSON.stringify silently turns Infinity into null - normalize to 0 first so
 // the wire payload's maxAgeDays is always a genuine finite number, matching
 // GateConfig's type in client.ts.
-const maxAgeDays = config.consentMaxAgeDays ?? 365;
+const maxAgeDays = config.consentMaxAgeDays;
 
 // <-escaping keeps "</script>" inside attribute values from closing the JSON block.
 const payload = JSON.stringify({
-  trackers: serializeTrackers(trackers),
-  version: config.consentVersion ?? 1,
+  trackers: serializeTrackers(config.tracker),
+  version: config.consentVersion,
   maxAgeDays: Number.isFinite(maxAgeDays) ? maxAgeDays : 0,
 }).replace(/</g, '\\u003c');
 ---

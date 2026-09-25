@@ -1,6 +1,8 @@
 import type { ConsentDecision, ConsentRecord } from './types.ts';
 
 export const CONSENT_STORAGE_KEY = 'opt-in-analytics:consent';
+export const DEFAULT_CONSENT_VERSION = 1;
+export const DEFAULT_CONSENT_MAX_AGE_DAYS = 365;
 
 // Storage and navigator are parameters, not globals, so this module is testable
 // outside a browser and never touches window at import time (SSR-safe).
@@ -8,7 +10,7 @@ export const CONSENT_STORAGE_KEY = 'opt-in-analytics:consent';
 export function readConsent(
   storage: Pick<Storage, 'getItem'>,
   version: number,
-  maxAgeDays: number = 365
+  maxAgeDays: number = DEFAULT_CONSENT_MAX_AGE_DAYS
 ): ConsentDecision | null {
   try {
     const raw = storage.getItem(CONSENT_STORAGE_KEY);
