@@ -25,15 +25,16 @@ jobs:
             --jq '.[0].number // empty')
           echo "pr_number=${PR_NUMBER}" >> "$GITHUB_OUTPUT"
 
-      # Title-based semver parsing, not body text. The documented body marker
-      # (version-update:semver-<level>) doesn't exist in the API response at
-      # all (confirmed live, LAB-1339), and body-text parsing ("Updates `pkg`
-      # from X to Y" / "Bumps [pkg](url) from X to Y") misses pip/npm
-      # requirement-range PRs whose body never states a concrete version pair
-      # in that exact shape. The PR title reliably has "from X to Y" for both
-      # shapes. Same regex as homelab-v3's dependabot-collect.py classify_pr
-      # (LAB-1339/LAB-1350) -- keep both in sync if either changes.
-      - name: Merge if title indicates a patch/minor version bump
+      # Single-package PRs are classified from the title's "from X to Y"
+      # (LAB-1339/LAB-1350); pip/npm requirement-range PRs state nothing else
+      # to parse. Grouped PRs ("... with N updates") are classified from the
+      # "update-type: version-update:semver-<level>" entries Dependabot writes
+      # into the commit message, one per package (LAB-1853). The PR body can't
+      # be used: GitHub truncates it at 65,536 characters. A group merges only
+      # when the PR has one commit and exactly N entries, all minor/patch.
+      # Same rule as homelab-v3's dependabot-collect.py classify_pr - keep
+      # them in sync.
+      - name: Merge if every version bump in the PR is patch/minor
         if: steps.find-pr.outputs.pr_number != ''
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -41,19 +42,33 @@ jobs:
           PR_NUMBER: ${{ steps.find-pr.outputs.pr_number }}
         run: |
           TITLE=$(gh pr view "$PR_NUMBER" --json title --jq '.title')
-          LEVEL=$(TITLE="$TITLE" python3 -c '
-          import os, re
-          m = re.search(r"from\s+\S*?(\d+(?:\.\d+){0,3})\s+to\s+\S*?(\d+(?:\.\d+){0,3})", os.environ["TITLE"], re.IGNORECASE)
-          if not m:
-              print("unknown")
-          else:
+          COMMITS=$(gh api "/repos/$GH_REPO/pulls/$PR_NUMBER/commits" --jq '[.[].commit.message]')
+          LEVEL=$(TITLE="$TITLE" COMMITS="$COMMITS" python3 -c '
+          import json, os, re
+          title = os.environ["TITLE"]
+          commits = json.loads(os.environ["COMMITS"])
+          m = re.search(r"from\s+\S*?(\d+(?:\.\d+){0,3})\s+to\s+\S*?(\d+(?:\.\d+){0,3})", title, re.IGNORECASE)
+          size = re.search(r"\bwith (\d+) updates?\b", title, re.IGNORECASE)
+          if m:
               old = [int(x) for x in m.group(1).split(".")]
               new = [int(x) for x in m.group(2).split(".")]
               print("major" if new[0] != old[0] else "safe")
+          elif not size or len(commits) != 1:
+              print("unknown")
+          else:
+              levels = re.findall(r"^\s*update-type:\s*version-update:semver-(\w+)\s*$", commits[0], re.MULTILINE)
+              if len(levels) != int(size.group(1)):
+                  print("unknown")
+              elif "major" in levels:
+                  print("major")
+              elif set(levels) <= {"minor", "patch"}:
+                  print("safe")
+              else:
+                  print("unknown")
           ')
 
           case "$LEVEL" in
             safe) gh pr merge "$PR_NUMBER" --squash --delete-branch ;;
             major) echo "Skipping - major version bump (PR #$PR_NUMBER)" ;;
-            *) echo "No parseable version bump in PR title - skipping to be safe (PR #$PR_NUMBER)" ;;
+            *) echo "No parseable version bump in PR title or commit metadata - skipping to be safe (PR #$PR_NUMBER)" ;;
           esac
