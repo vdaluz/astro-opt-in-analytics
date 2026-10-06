@@ -5,7 +5,7 @@ paths:
   - "src/**"
 ---
 
-<!-- Synced by hand across the @vdaluz/astro-* package family - not generated or symlinked. -->
+<!-- Synced by hand from rules/astro-package-conventions.md across the @vdaluz/astro-* package family - not generated or symlinked. -->
 
 ## Shared @vdaluz/astro-* package conventions
 

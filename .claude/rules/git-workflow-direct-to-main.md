@@ -1,4 +1,4 @@
-<!-- Synced by hand across the @vdaluz/astro-* package family - not generated or symlinked. -->
+<!-- Synced by hand from rules-templates/git-workflow-direct-to-main.md across the @vdaluz/astro-* package family - not generated or symlinked. -->
 
 ## Git workflow (small single-maintainer package)
 
