@@ -23,3 +23,11 @@ test('default whatsCollectedBody discloses browser language and screen resolutio
   assert.ok(text.includes('language'));
   assert.ok(text.includes('screen resolution'));
 });
+
+test('default bullets scope the IP-address claim to the self-hosted Umami server', () => {
+  const ipBullets = DEFAULT_PRIVACY_EXPLAINER_STRINGS.bullets
+    .map((bullet) => (typeof bullet === 'string' ? bullet : bullet.default))
+    .filter((text) => text.includes('IP address'));
+  assert.equal(ipBullets.length, 1);
+  assert.ok(ipBullets[0].includes('Umami'));
+});

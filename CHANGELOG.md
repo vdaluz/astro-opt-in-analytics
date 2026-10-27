@@ -4,6 +4,14 @@ All notable changes to this project are documented here. Format loosely follows 
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-10-27
+
+### Changed
+
+- `cloudflareBeacon()`'s default `privacyInfo` now sets `collects` (en/es/pt) to what Cloudflare's Web Analytics docs say the beacon reports: page load and paint timings, Core Web Vitals including the measured page element, country, and browser/OS/device type. `PrivacyExplainer` renders it as "Also collects: ..." on the Cloudflare entry. Before this, the entry named the tool and listed nothing, while the "what's collected" copy above it ends with "That's it." **This changes the rendered `/privacy` text on every site using `cloudflareBeacon()`.**
+- `cloudflareBeacon()` now merges a consumer's `privacyInfo` over its defaults instead of replacing them, so a site that overrides `label` or `description` still gets the default `collects`. `privacyInfo` is typed `Partial<TrackerPrivacyInfo>`. Pass `collects` to replace the list.
+- The default "No personal data, no IP address stored" bullet now reads "No personal data, and the self-hosted Umami server keeps no IP address in its analytics" (es/pt updated too). The old wording sat above every tracker, including Cloudflare, whose docs say nothing about IP retention. Umami's docs say the IP is used for location but not stored in analytics records. A site that doesn't use `umami()` should override `bullets`.
+
 ## [0.10.0] - 2026-09-24
 
 ### Added

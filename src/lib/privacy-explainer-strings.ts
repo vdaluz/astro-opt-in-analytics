@@ -36,9 +36,9 @@ export const DEFAULT_PRIVACY_EXPLAINER_STRINGS: PrivacyExplainerStrings = {
       pt: 'Sem rastreamento entre sites',
     },
     {
-      default: 'No personal data, no IP address stored',
-      es: 'Sin datos personales, sin almacenar tu dirección IP',
-      pt: 'Sem dados pessoais, sem armazenar seu endereço IP',
+      default: 'No personal data, and the self-hosted Umami server keeps no IP address in its analytics',
+      es: 'Sin datos personales, y el servidor Umami propio no guarda tu dirección IP en su analítica',
+      pt: 'Sem dados pessoais, e o servidor Umami próprio não guarda seu endereço IP na análise',
     },
     {
       default: 'No advertising, no data sold or shared with anyone',
