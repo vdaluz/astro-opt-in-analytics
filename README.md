@@ -171,7 +171,7 @@ Publishing / OIDC, no token secret):
 - [freetoolbox.net](https://freetoolbox.net)
 - [vicstradamus.com](https://vicstradamus.com) (`umami()` and `cloudflareBeacon()`)
 - [deepcutatlas.com](https://deepcutatlas.com)
-- [roomforstars.com](https://roomforstars.com) (components wired in; its Umami site ID is still a placeholder, so it doesn't track yet)
+- [roomforstars.com](https://roomforstars.com)
 
 ## License
 
