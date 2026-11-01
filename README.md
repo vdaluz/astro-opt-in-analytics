@@ -79,7 +79,7 @@ Placement only changes the desktop layout - at <=640px both render the same full
 
 ## Privacy explainer page
 
-`PrivacyExplainer.astro` renders the substantive sections of a `/privacy` page - what's collected, how consent gates it, and which tools are behind it - sourced directly from your `analytics` config so the page can't drift from what's actually injected. Wrap it in your own layout and hero copy:
+`PrivacyExplainer.astro` renders the substantive sections of a `/privacy` page - what's collected, how consent gates it, and which tools are behind it. The tools section comes from your `analytics` config: each tracker's name, its learn-more link and what it collects. The other sections are default copy, which you can override with the `strings` prop and should keep accurate for your setup. Wrap it in your own layout and hero copy:
 
 ```astro
 ---
@@ -141,7 +141,7 @@ The prompt reads CSS custom properties with sensible dark fallbacks: `--surface`
 1. **Alias the token colors in `tailwind.config.mjs`** - see [`@vdaluz/astro-blog`'s README](https://github.com/vdaluz/astro-blog#four-things-every-consumer-must-do) for the exact color-alias block, since both packages share the same token names.
 2. **Include this package in your Tailwind `content` glob**: `./node_modules/@vdaluz/astro-opt-in-analytics/**/*.astro` - without it, `PrivacyExplainer`'s utility classes are never generated and the page renders unstyled.
 
-Without both, `PrivacyExplainer` still works functionally (it's sourced from your live config, so it can't drift from what's actually injected) but renders as unstyled text.
+Without both, `PrivacyExplainer` still works functionally but renders as unstyled text.
 
 ## Contributing
 

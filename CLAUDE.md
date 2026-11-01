@@ -2,7 +2,7 @@
 
 ## What this repo is
 
-`@vdaluz/astro-opt-in-analytics`: consent-first analytics for Astro sites. An opt-in prompt, a consent gate, tracker adapters (`umami`, `cloudflareBeacon`), and a `PrivacyExplainer` component that renders a `/privacy` page's substantive copy straight from the tracker config. Trackers activate only after an explicit stored grant; denied, unanswered, or a Global Privacy Control signal means zero requests. Consumed as an npm-registry semver pin by the sites in the README's Consumers section.
+`@vdaluz/astro-opt-in-analytics`: consent-first analytics for Astro sites. An opt-in prompt, a consent gate, tracker adapters (`umami`, `cloudflareBeacon`), and a `PrivacyExplainer` component that renders a `/privacy` page's substantive copy, with the tools list taken from the tracker config and the rest from overridable default strings. Trackers activate only after an explicit stored grant; denied, unanswered, or a Global Privacy Control signal means zero requests. Consumed as an npm-registry semver pin by the sites in the README's Consumers section.
 
 ## Workflow
 
