@@ -8,9 +8,9 @@
 
 Shared preamble: `.claude/rules/git-workflow-direct-to-main.md`.
 
-## Plane (AST project)
+## Issue tracking (AST project)
 
-Project ID, state UUIDs, and label UUIDs: **`.claude/plane.yml`**.
+Issues live in OPM (`mcp__opm__*` tools). `.claude/plane.yml` supplies only the project key (`project_identifier`); its UUIDs are Plane's, so never pass them to an OPM tool. Resolve OPM IDs at run time per `~/.claude/skills/_shared/opm-reference.md`.
 
 ## Conventions
 
